@@ -1,0 +1,60 @@
+[
+  {
+    "MountId": "56e62dd7-241f-41e9-8c6b-dd4ca4513e62",
+    "AncestorCsetIds": [
+      12
+    ],
+    "SourceCsetId": 14,
+    "DestinationCsetId": 12,
+    "FileConflicts": [
+      {
+        "Path": "/Assets/Scripts/HandLogic.cs",
+        "ItemId": 736,
+        "ParentItemId": 624,
+        "BaseRevId": 1428,
+        "SourceRevId": 4068,
+        "DestinationRevId": 1428
+      },
+      {
+        "Path": "/Assets/Scripts/ExportData.cs",
+        "ItemId": 1452,
+        "ParentItemId": 624,
+        "BaseRevId": 1835,
+        "SourceRevId": 2077,
+        "DestinationRevId": 1835
+      },
+      {
+        "Path": "/Assets/Scripts/HandTrack.cs",
+        "ItemId": 738,
+        "ParentItemId": 624,
+        "BaseRevId": 1837,
+        "SourceRevId": 4069,
+        "DestinationRevId": 1837
+      },
+      {
+        "Path": "/Assets/Scripts/IconLineDraw.cs",
+        "ItemId": 740,
+        "ParentItemId": 624,
+        "BaseRevId": 1838,
+        "SourceRevId": 4070,
+        "DestinationRevId": 1838
+      },
+      {
+        "Path": "/Assets/Scripts/ImportData.cs",
+        "ItemId": 746,
+        "ParentItemId": 624,
+        "BaseRevId": 1839,
+        "SourceRevId": 2082,
+        "DestinationRevId": 1839
+      },
+      {
+        "Path": "/Assets/Scripts/Settings.cs",
+        "ItemId": 758,
+        "ParentItemId": 624,
+        "BaseRevId": 1844,
+        "SourceRevId": 2086,
+        "DestinationRevId": 1844
+      }
+    ]
+  }
+]
