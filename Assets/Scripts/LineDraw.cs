@@ -7,7 +7,7 @@ using TMPro;
 /*!
   Gameobjects with interchangable icons that show the user where to put their hands.
 */
-public class IconLineDraw : MonoBehaviour
+public class LineDraw : MonoBehaviour
 {
   [Tooltip("Prefab containing the 3D icon for hand placement")]
   //! [Input] The prefab containing the 3D icon for hand placement

@@ -9,7 +9,7 @@ public class LineLogic : MonoBehaviour
 {
 	[Tooltip("The icon lines for hand tracing")]
 	//! [Input List] The icon lines to use
-  public IconLineDraw[] lines;
+  public LineDraw[] lines;
 	//! [Input List] The icons to use for replay
 	public GameObject[] replayIcons;
 
@@ -39,7 +39,7 @@ public class LineLogic : MonoBehaviour
 
 	//! Call create line functions for all lines. Triggered by import data start.
 	public void StartLines() {
-		foreach (IconLineDraw line in lines) {
+		foreach (LineDraw line in lines) {
 			line.CreateLine();
 		}
 	}

@@ -13,16 +13,13 @@ using UnityEngine;
 */
 public class ImportData : MonoBehaviour
 {
-  //! The user interface script
-  private UserInterface ui;
-  //! The selected folder
-  private string folder = "";
+  public TextAsset positionMain;
+  public TextAsset mixed;
+  public TextAsset RotationMain;
   [HideInInspector] public string title = "";
 
   void Start()
   {
-    ui = GetComponent<UserInterface>();
-
     TextAsset txtData = (TextAsset)Resources.Load("input");
     string data = txtData.text;
     if (data != "") {
@@ -31,63 +28,6 @@ public class ImportData : MonoBehaviour
       Debug.Log("Data file not found");
     }
   }
-
-  //! When file browser finishes, read through files in the folder
-  // void OnSuccess( string[] filePaths ) {
-  //   Debug.Log("Importing...");
-
-  //   // Get all selected files
-  //   for( int i = 0; i < filePaths.Length; i++ )
-  //     Debug.Log( filePaths[i] );
-  //   folder = filePaths[0];
-
-  //   // Get files in selected folder
-  //   string[] files = Directory.GetFiles(folder);
-
-  //   // Init file name strings
-  //   string text = "";
-  //   string videoLeft = "";
-  //   string videoRight = "";
-  //   string textG = "";
-
-  //   for( int i = 0; i < files.Length; i++ ) {
-  //     // Match the txt files for kinematics and gestures
-  //     if (Regex.IsMatch(files[i], @"(\.txt)$")) {
-  //       if (i < files.Length/2) {
-  //         text = files[i];
-  //         title = Regex.Replace(files[i], "_|-", " ");
-  //       } else {
-  //         textG = files[i];
-  //       }
-  //     }
-  //     // Match video files
-  //     if (Regex.IsMatch(files[i], @"(\.avi)$")) {
-  //       if (i < files.Length/2) {
-  //         videoLeft = files[i];
-  //       } else {
-  //         videoRight = files[i];
-  //       }
-  //     }
-  //   }
-
-  //   // Testing();
-
-  //   if (text == "") {
-  //     Debug.LogWarning("Files not found");
-  //     return;
-  //   }
-  //   ReadPositions(text);
-
-  //   // ReadGestures(textG);
-
-  //   // for (int i = 0; i < Globals.traces.Length; i++) {
-  //   //   Globals.traces[currSet][i].Positions = new List<Vector3>(Globals.traces[currSet][i].Info.Count);
-  //   //   Globals.traces[currSet][i].Rotations = new List<Quaternion>(Globals.traces[currSet][i].Info.Count);
-  //   // }
-
-  //   // Moved to start video 
-  //   // GetComponent<LineLogic>().StartLines();
-  // }
 
   //! Read and store kinematics data
   void ReadPositions(string filePath) {
@@ -113,13 +53,6 @@ public class ImportData : MonoBehaviour
         Vector3 posR = new Vector3(nums[6], nums[7] , nums[8] );
         Vector3 rotR = new Vector3(nums[9], nums[10], nums[11]);
         float time = nums[12];
-
-        // if (first) {
-        //   Debug.Log("Rotation: " + ToMatrix(matrixNums));
-        //   Debug.Log("Rotation*Offset: " + (ToMatrix(matrixNums) * (i == 0 ? LROffset : RROffset)));
-        //   Debug.Log("");
-        //   first = false;
-        // }
 
         // Put data into arm info
         Globals.traces[Globals.currSet][0].Positions.Add(posL);

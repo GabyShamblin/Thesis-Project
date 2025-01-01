@@ -26,7 +26,7 @@ public class HandTrack : MonoBehaviour
 
   //! [Input] Respective icon line script
   [Tooltip("The respective icon line draw script")]
-  public IconLineDraw iconLine;
+  public LineDraw iconLine;
 
   //! [Input] The UI selection line
   [Tooltip("The UI selection line")]

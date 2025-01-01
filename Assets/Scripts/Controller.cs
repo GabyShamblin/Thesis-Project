@@ -12,8 +12,6 @@ public class VideoController : MonoBehaviour
 
   //! Line logic
   private LineLogic lineLogic;
-  //! User interface
-  private UserInterface ui;
   //! Export data
   private ExportData exportData;
   //! Whether all gestures have been finished
@@ -28,10 +26,7 @@ public class VideoController : MonoBehaviour
       Debug.LogError("Screen is not active or set to correct canvas");
     }
     lineLogic = GetComponent<LineLogic>();
-    ui = GetComponent<UserInterface>();
     exportData = GetComponent<ExportData>();
-
-    ui.SetCanvas(screen.transform.GetChild(2).gameObject);
   }
 
   //! Start video player. Triggered by import data.
@@ -46,9 +41,6 @@ public class VideoController : MonoBehaviour
 
   //! Move video to next gesture. Triggered by moving hands to correct positions or clicking right arrow key.
   public void Forward() {
-    ui.Message("Forward");
-    // lineLogic.SaveHands(Globals.currGest + 1);
-
     Debug.Log("Forward");
     lineLogic.ResetLines();
     Globals.paused = false;

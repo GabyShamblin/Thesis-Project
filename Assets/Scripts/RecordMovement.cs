@@ -11,18 +11,26 @@ public class RecordMovement : MonoBehaviour
 	[SerializeField] private GameObject RightHand;
 	string line = "";
 	float time = 0f;
+	int fileCount = 0;
 
   void Update()
   {
-		// While holding A
+		// While holding A, record movements of both hands
     if (OVRInput.Get(OVRInput.Button.One)) {
 			Recording();
-		}
-		else if (OVRInput.Get(OVRInput.Button.Two)) {
-			Saving();
 		} else {
 			time = 0.0f;
 		}
+
+		// On clicking B, save movements to desktop
+		if (OVRInput.GetDown(OVRInput.Button.Two)) {
+			Saving();
+		} 
+
+		// On clicking X, reset recording
+		if (OVRInput.GetDown(OVRInput.Button.Three)) {
+			line = "";
+		} 
   }
 	
 	public void Recording() {
@@ -37,11 +45,15 @@ public class RecordMovement : MonoBehaviour
 	}
 
 	public void Saving() {
+		Debug.Log("Saving");
 		string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-		using (StreamWriter writer = new StreamWriter(Path.Combine(path, "recording.txt"))) {
+		using (StreamWriter writer = new StreamWriter(Path.Combine(path, "recording" + fileCount + ".txt"))) {
 			writer.WriteLine(line);
 		}
+		fileCount++;
+		line = "";
+
 		Debug.Log("Recording saved");
 	}
 }
