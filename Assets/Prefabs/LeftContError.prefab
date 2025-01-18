@@ -312,7 +312,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2830684751678179227}
   - component: {fileID: 5779237447881845299}
-  - component: {fileID: 1049565641306423667}
   m_Layer: 0
   m_Name: LeftContError
   m_TagString: Untagged
@@ -360,19 +359,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1049565641306423667
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4214130410902278777}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 581e28cc060d09a498be03b669030237, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rendMat: {fileID: 7427191958825510790}
 --- !u!1 &4466586743247955147
 GameObject:
   m_ObjectHideFlags: 0

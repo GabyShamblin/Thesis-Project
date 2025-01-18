@@ -67,7 +67,7 @@ public class LineDraw : MonoBehaviour
     if (Globals.start && Globals.paused) {
       if (point != null) {
         // Set frame point
-        Vector3 original = Globals.traces[Globals.currSet][lineNum].Positions[Globals.currFrame];
+        Vector3 original = Globals.traces[Globals.move][lineNum].Positions[Globals.currFrame];
         // Debug.Log(lineNum + ": " + Globals.userHands[lineNum] + "/" + Globals.gestures[Globals.currGest].End);
         point.transform.position = new Vector3(
           original.x + offset.x, 
@@ -83,20 +83,16 @@ public class LineDraw : MonoBehaviour
     Create and position all icons for the line tracing
   */
   public void CreateLine() {
-    icons = new GameObject[Globals.traces[Globals.currSet][lineNum].Positions.Count];
-    int gest = 0;
+    icons = new GameObject[Globals.traces[Globals.move][lineNum].Positions.Count];
 
     // Create all icons and set them not active
     // Create every other icon and gesture beginning and end for downsampling
-    for (int i = 0; i < Globals.traces[Globals.currSet][lineNum].Positions.Count; i++) {
-      if (i % 2 == 0 || i == Globals.traces[Globals.currSet][lineNum].Positions.Count) {
-        currPos = Globals.traces[Globals.currSet][lineNum].Positions[i];
-        currRot = Globals.traces[Globals.currSet][lineNum].Rotations[i];
+    for (int i = 0; i < Globals.traces[Globals.move][lineNum].Positions.Count; i++) {
+      if (i % 2 == 0 || i == Globals.traces[Globals.move][lineNum].Positions.Count) {
+        currPos = Globals.traces[Globals.move][lineNum].Positions[i];
+        currRot = Globals.traces[Globals.move][lineNum].Rotations[i];
 
         // Create point and set to correct position and rotation
-        // TransformPoint makes the position be in local coordinates to account for console turning
-        // icons[i] = Instantiate(iconPrefab, transform.parent.parent.TransformPoint(currPos), currRot, transform);
-        // icons[i] = Instantiate(iconPrefab, transform.parent.TransformPoint(currPos), currRot, transform);
         icons[i] = Instantiate(iconPrefab, transform, false);
 
         icons[i].name += i;
@@ -107,7 +103,6 @@ public class LineDraw : MonoBehaviour
     }
 
     // Icons are set based on global (0,0,0), so move the parent to proper hand position afterwards
-    // transform.localPosition = offset;
     transform.localPosition = new Vector3(
       offset.x, 
       offset.y, 
@@ -118,17 +113,18 @@ public class LineDraw : MonoBehaviour
   //! Set icons active are line is drawn. Triggered by hand track.
   public void UpdateLine(int frame, bool toggle = true) {
     // Percent of the way through the gesture for color changing
-    blend = (float)frame / (float)Globals.traces[Globals.currSet][lineNum].Positions.Count;
+    blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
 
     if (frame < icons.Length && icons[frame] != null) {
-      if (Globals.animated && icons[prevFrame] != null) {
+      // vis[1] = animation type
+      if (Globals.vis[1] && icons[prevFrame] != null) {
         icons[prevFrame].SetActive(false); 
       }
       if (frameText != null) {
         frameText.text = "" + frame;
       }
 
-      if (!Globals.animated) {
+      if (!Globals.vis[1]) {
         icons[frame].SetActive(toggle);
       } else {
         icons[frame].SetActive(true);
@@ -149,12 +145,12 @@ public class LineDraw : MonoBehaviour
   //! Set icons active are line is drawn. Triggered by hand logic.
   public void UpdateLine() {
     int startFrame = 0;
-    int endFrame = Globals.traces[Globals.currSet][lineNum].Positions.Count + 1;
+    int endFrame = Globals.traces[Globals.move][lineNum].Positions.Count + 1;
 
     // Make sure traces are in the gesture
     for (int frame = startFrame; frame < endFrame; frame++) {
       // Percent of the way through the gesture for color changing
-      blend = (float)frame / (float)Globals.traces[Globals.currSet][lineNum].Positions.Count;
+      blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
 
       if (frame < icons.Length && icons[frame] != null) {
         if (icons[prevFrame] != null) {
@@ -183,7 +179,7 @@ public class LineDraw : MonoBehaviour
     point.transform.position = Vector3.zero;
 
     // Set all icons in gesture to not active
-    for (int i = 0; i < Globals.traces[Globals.currSet][lineNum].Positions.Count; i++) {
+    for (int i = 0; i < Globals.traces[Globals.move][lineNum].Positions.Count; i++) {
       if (icons[i] != null) {
         // Turn off icon
         icons[i].SetActive(false);

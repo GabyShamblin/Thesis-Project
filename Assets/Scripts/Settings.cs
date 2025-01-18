@@ -20,25 +20,16 @@ public static class Globals
   public static bool start = false;
   public static bool paused = true;
 
-  //! Movement visualization setting
-  /*!
-    f = Static
-    t = Animated
-  */
-  public static bool animated = false;
 
-  //! Line visualization setting
-  /*!
-    f = One hand
-    t = Two hand
-  */
-  public static bool bimanuel = false;
 
-  //! How much to offset the controller
-  public static float ghostOffset = 0f;
+  // Offset/no offset, Keyframe/continuous, Manuel/bimanuel
+  public static bool[] vis = new bool[3];
 
-  //! The current frame
-  public static int currFrame = 0;
+  // Total 8
+  // Offset switch: 4
+  // Frame switch: 2
+  // Hands switch: 1
+  public static int trial = 1;
 
   //! The current set of movements
   /*!
@@ -46,13 +37,25 @@ public static class Globals
     1 = Rotation
     2 = Mixed
   */
-  public static int currSet = 0;
+  public static int move = 0;
+
+  //! How much to offset the controller
+  public static float ghostOffset = 0.5f;
+
+
+
+  //! The current frame
+  public static int currFrame = 0;
+
+  // What frame each hand is at
+  public static int[] armCheck = new int[2];
 
   // Absolute correct path for user to follow, only for visualization
   // Movement x Hand
-  public static List<List<Hand>> traces = new List<List<Hand>>();
+  public static List<List<Hand>> traces;
+
   // Saved user movements
-  public static List<Hand> userHands = new List<Hand>();
+  public static List<Hand> userHands = new List<Hand>(2);
 }
 
 //! Each arm has a list of data per frame of video
@@ -68,6 +71,7 @@ public class Hand
   public Hand() {
     Positions = new List<Vector3>();
     Rotations = new List<Vector3>();
+    Timestamps = new List<float>();
   }
 
   public override string ToString() {

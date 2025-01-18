@@ -15,56 +15,59 @@ public class ImportData : MonoBehaviour
 {
   public TextAsset positionMain;
   public TextAsset mixed;
-  public TextAsset RotationMain;
+  public TextAsset rotationMain;
   [HideInInspector] public string title = "";
+
+  void Awake() {
+    Globals.traces = new List<List<Hand>>(3);
+  }
 
   void Start()
   {
-    TextAsset txtData = (TextAsset)Resources.Load("input");
-    string data = txtData.text;
-    if (data != "") {
-      ReadPositions(data);
+    if (positionMain != null || mixed != null || rotationMain != null) {
+      Globals.traces.Add(new List<Hand>(2));
+      Globals.traces.Add(new List<Hand>(2));
+      Globals.traces.Add(new List<Hand>(2));
+      ReadPositions(positionMain.ToString(), 0);
+      ReadPositions(mixed.ToString(), 1);
+      ReadPositions(rotationMain.ToString(), 2);
+
+      // this.GetComponent<LineLogic>().StartLines();
     } else {
-      Debug.Log("Data file not found");
+      Debug.LogError("Data file(s) not found");
     }
   }
 
   //! Read and store kinematics data
-  void ReadPositions(string filePath) {
-    Debug.Log("Position file: " + filePath);
-    StreamReader reader = new StreamReader(filePath);
-
-    bool first = true;
+  void ReadPositions(string data, int movement) {
     string line;
-    while ((line = reader.ReadLine()) != null) {
-      line = line.Trim();
+    string[] lines = data.Split("\n");
+    Globals.traces[movement].Add(new Hand());
+    Globals.traces[movement].Add(new Hand());
+
+    for (int i = 0; i < lines.Length; i++) {
+      line = lines[i].Trim();
+      if (line == "" || line == "\n") {
+        break;
+      }
       // Seperate line into array
       float[] nums = line.Split("  ").Select(str => float.Parse(str.Trim())).ToArray();
 
-      int move = 0;
-      int cont = 0;
+      // Grab each value
+      Vector3 posL = new Vector3(nums[0], nums[1] , nums[2] );
+      Vector3 rotL = new Vector3(nums[3], nums[4] , nums[5] );
+      Vector3 posR = new Vector3(nums[6], nums[7] , nums[8] );
+      Vector3 rotR = new Vector3(nums[9], nums[10], nums[11]);
+      float time = nums[12];
 
-      // For each arm
-      int val = 0;
-      for (int i = 0; i < Globals.traces.Count; i++) {
-        // Grab each value
-        Vector3 posL = new Vector3(nums[0], nums[1] , nums[2] );
-        Vector3 rotL = new Vector3(nums[3], nums[4] , nums[5] );
-        Vector3 posR = new Vector3(nums[6], nums[7] , nums[8] );
-        Vector3 rotR = new Vector3(nums[9], nums[10], nums[11]);
-        float time = nums[12];
-
-        // Put data into arm info
-        Globals.traces[Globals.currSet][0].Positions.Add(posL);
-        Globals.traces[Globals.currSet][0].Rotations.Add(rotL);
-        Globals.traces[Globals.currSet][0].Timestamps.Add(time);
-        Globals.traces[Globals.currSet][1].Positions.Add(posR);
-        Globals.traces[Globals.currSet][1].Rotations.Add(rotR);
-        Globals.traces[Globals.currSet][1].Timestamps.Add(time);
-      }
+      // Put data into arm info
+      Globals.traces[movement][0].Positions.Add(posL);
+      Globals.traces[movement][0].Rotations.Add(rotL);
+      Globals.traces[movement][0].Timestamps.Add(time);
+      Globals.traces[movement][1].Positions.Add(posR);
+      Globals.traces[movement][1].Rotations.Add(rotR);
+      Globals.traces[movement][1].Timestamps.Add(time);
     }
-
-    reader.Close();
   }
 
   //! Turn 3x3 matrix into 4x4 matrix

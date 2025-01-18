@@ -35,6 +35,7 @@ public class VideoController : MonoBehaviour
     Globals.start = true;
   }
 
+  // TODO: Add stuff to this to update everything. (Also rename to just controller, no video anymore)
   void Update() 
   {
   }
@@ -45,29 +46,31 @@ public class VideoController : MonoBehaviour
     lineLogic.ResetLines();
     Globals.paused = false;
 
-    if (Globals.animated) {
-      if (Globals.ghostOffset > 0) {
-        if (Globals.bimanuel) {
-          Debug.Log("Task complete");
-          Globals.start = false;
-        } else {
-          Globals.bimanuel = true;
-        }
-        Globals.ghostOffset = 0;
-      } else {
-        Globals.ghostOffset = 1.0f;
-      }
+    if (Globals.trial % 4 == 0) {
+      Globals.vis[0] = true;
+    }
+
+    if (Globals.trial % 2 == 0) {
+      Globals.vis[1] = true;
     } else {
-      if (Globals.ghostOffset > 0) {
-        if (Globals.bimanuel) {
-          Globals.animated = true;
-        } else {
-          Globals.bimanuel = true;
-        }
-        Globals.ghostOffset = 0;
-      } else {
-        Globals.ghostOffset = 1.0f;
-      }
+      Globals.vis[1] = false;
+    }
+
+    Globals.vis[2] = !Globals.vis[2];
+
+    Globals.trial += 1;
+  }
+
+  //! Replay current gesture. Triggered by geting hand positions wrong or clicking left arrow key.
+  public IEnumerator Rewind() {
+    Globals.start = false;
+    // audioFeedback.PlayOneShot(failAudio);
+    yield return StartCoroutine(lineLogic.ReplayHands());
+
+    Debug.Log("Rewind");
+    lineLogic.ResetLines();
+    for ( int i = 0; i < 2; i++) {
+      Globals.armCheck[i] = 0;
     }
   }
 }

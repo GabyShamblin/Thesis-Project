@@ -14,7 +14,6 @@ using UnityEngine;
 public class ExportData : MonoBehaviour
 {
 	public HandTrack[] handTracks;
-	public ScoreChart chart;
 	private Stats posStats = new Stats();
 	private Stats rotStats = new Stats();
 

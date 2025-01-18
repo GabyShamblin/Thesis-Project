@@ -61,8 +61,8 @@ public class LineLogic : MonoBehaviour
 
 		// If the hands have different counts, make sure to use the lowest
 		int lessHands = 
-			Globals.traces[Globals.currSet][0].Positions.Count < Globals.traces[Globals.currSet][1].Positions.Count ? 
-			Globals.traces[Globals.currSet][0].Positions.Count : Globals.traces[Globals.currSet][1].Positions.Count;
+			Globals.traces[Globals.move][0].Positions.Count < Globals.traces[Globals.move][1].Positions.Count ? 
+			Globals.traces[Globals.move][0].Positions.Count : Globals.traces[Globals.move][1].Positions.Count;
 		// Set all hands active
 		foreach (GameObject hand in replayHands) { hand.SetActive(true); }
 
@@ -70,8 +70,8 @@ public class LineLogic : MonoBehaviour
     for (int i = 0; i < lessHands; i++) {
 				for (int j = 0; j < 2; j++) {
 					try {
-						replayHands[j].transform.position = Globals.traces[Globals.currSet][Globals.currFrame].Positions[i];
-						replayHands[j].transform.eulerAngles = Globals.traces[Globals.currSet][Globals.currFrame].Rotations[i];
+						replayHands[j].transform.position = Globals.traces[Globals.move][Globals.currFrame].Positions[i];
+						replayHands[j].transform.eulerAngles = Globals.traces[Globals.move][Globals.currFrame].Rotations[i];
 					} catch (Exception e) {
 						Debug.LogError(e.ToString());
 						if (j >= replayHands.Length) {
@@ -80,10 +80,10 @@ public class LineLogic : MonoBehaviour
 						else if (j >= Globals.traces.Count) {
 							Debug.Log("Arms problem");
 						}
-						else if (i >= Globals.traces[Globals.currSet][j].Positions.Count) {
+						else if (i >= Globals.traces[Globals.move][j].Positions.Count) {
 							Debug.Log("Hands position problem");
 						}
-						else if (i >= Globals.traces[Globals.currSet][j].Rotations.Count) {
+						else if (i >= Globals.traces[Globals.move][j].Rotations.Count) {
 							Debug.Log("Hands rotation problem");
 						}
 						continue;
