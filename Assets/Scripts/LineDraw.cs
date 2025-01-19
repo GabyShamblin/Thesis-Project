@@ -17,10 +17,6 @@ public class LineDraw : MonoBehaviour
   //! [Input] The point showing the current frame for hand tracing
   public GameObject point;
 
-  [Tooltip("Whether the icon used is the quest controller")]
-  //! [Input] Whether the icon used is the quest controller
-  public bool controller = true;
-
   [Tooltip("Which hand is this (0 = left, 1 = right)")]
   [Range(0, 1)]
   //! [Input] Which line the script is currently attatched to (0 = left, 1 = right)
@@ -37,6 +33,7 @@ public class LineDraw : MonoBehaviour
   private float blend = 0;
   //! The previous frame activated
   private int prevFrame = 0;
+  private int skipFrames = 1;
   //! The current hand position
   private Vector3 currPos;
   //! The current hand rotation
@@ -58,6 +55,9 @@ public class LineDraw : MonoBehaviour
       if (point == null) {
         Debug.LogError("Point " + lineNum + " has not been set and cannot be found.");
       }
+    }
+    if (Globals.vis[1]) {
+      skipFrames = 5;
     }
     offset = this.transform.position;
   }
@@ -88,7 +88,7 @@ public class LineDraw : MonoBehaviour
     // Create all icons and set them not active
     // Create every other icon and gesture beginning and end for downsampling
     for (int i = 0; i < Globals.traces[Globals.move][lineNum].Positions.Count; i++) {
-      if (i % 2 == 0 || i == Globals.traces[Globals.move][lineNum].Positions.Count) {
+      if (i % skipFrames == 0 || i == Globals.traces[Globals.move][lineNum].Positions.Count) {
         currPos = Globals.traces[Globals.move][lineNum].Positions[i];
         currRot = Globals.traces[Globals.move][lineNum].Rotations[i];
 
@@ -112,64 +112,51 @@ public class LineDraw : MonoBehaviour
 
   //! Set icons active are line is drawn. Triggered by hand track.
   public void UpdateLine(int frame, bool toggle = true) {
-    // Percent of the way through the gesture for color changing
-    blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
-
     if (frame < icons.Length && icons[frame] != null) {
       // vis[1] = animation type
-      if (Globals.vis[1] && icons[prevFrame] != null) {
-        icons[prevFrame].SetActive(false); 
+      if (Globals.vis[1]) {
+        if (icons[prevFrame] != null) {
+          icons[prevFrame].SetActive(false);
+          prevFrame = frame;
+        }
+        icons[frame].SetActive(true);
+      } else {
+        icons[frame].SetActive(toggle);
       }
+      
       if (frameText != null) {
         frameText.text = "" + frame;
       }
 
-      if (!Globals.vis[1]) {
-        icons[frame].SetActive(toggle);
-      } else {
-        icons[frame].SetActive(true);
-        prevFrame = frame;
-      }
-      
-      // Controller has a weird structure, so make sure other icons have a renderer attatched to the parent
-      if (controller) {
-        Renderer render = icons[frame].transform.GetChild(2).GetComponent<Renderer>();
-        render.material.SetFloat("_Blend", blend);
-      } else {
-        Renderer render = icons[frame].transform.GetComponent<Renderer>();
-        render.material.SetFloat("_Blend", blend);
-      }
+      // Percent of the way through the gesture for color changing
+      blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
+      Renderer render = icons[frame].transform.GetChild(2).GetComponent<Renderer>();
+      render.material.SetFloat("_Blend", blend);
     }
   }
 
   //! Set icons active are line is drawn. Triggered by hand logic.
   public void UpdateLine() {
     int startFrame = 0;
-    int endFrame = Globals.traces[Globals.move][lineNum].Positions.Count + 1;
+    int endFrame = Globals.traces[Globals.move][lineNum].Positions.Count;
 
     // Make sure traces are in the gesture
     for (int frame = startFrame; frame < endFrame; frame++) {
-      // Percent of the way through the gesture for color changing
-      blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
-
       if (frame < icons.Length && icons[frame] != null) {
         if (icons[prevFrame] != null) {
           icons[prevFrame].SetActive(false); 
         }
+        icons[frame].SetActive(true);
+        prevFrame = frame;
+
         if (frameText != null) {
           frameText.text = "" + frame;
         }
-        icons[frame].SetActive(true);
-        prevFrame = frame;
-        
-        // Controller has a weird structure, so make sure other icons have a renderer attatched to the parent
-        if (controller) {
-          Renderer render = icons[frame].transform.GetChild(2).GetComponent<Renderer>();
-          render.material.SetFloat("_Blend", blend);
-        } else {
-          Renderer render = icons[frame].transform.GetComponent<Renderer>();
-          render.material.SetFloat("_Blend", blend);
-        }
+      
+        // Percent of the way through the gesture for color changing
+        blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
+        Renderer render = icons[frame].transform.GetChild(2).GetComponent<Renderer>();
+        render.material.SetFloat("_Blend", blend);
       }
     }
   }
@@ -185,41 +172,5 @@ public class LineDraw : MonoBehaviour
         icons[i].SetActive(false);
       }
     }
-  }
-
-  // ----- For controller stuff -----
-
-  //! Hold trigger to move line
-  public void GrabHandPos(Transform hand) {
-    ogHandPos = hand.position;
-    Debug.Log("Original position: " + hand.position);
-  }
-
-  //! Hold trigger to move line. Triggered by the respective hand trigger.
-  public void MoveLine(Transform hand) {
-    if (Globals.start && Globals.paused) {
-      Debug.Log("Offset: " + offset);
-      Debug.Log("Hand pos: " + hand.position);
-      Debug.Log("Original: " + ogHandPos);
-      Debug.Log("New position: " + (offset + (hand.position - ogHandPos)));
-      this.transform.localPosition = offset + (hand.position - ogHandPos);
-      // Globals.userHands[lineNum].Offset = offset + (hand.position - ogHandPos);
-    }
-	}
-
-  //! Reset the line position to the original offset
-  public void ResetLinePos() {
-    Debug.Log("Reset lines");
-    this.transform.localPosition = offset;
-	}
-
-  //! Get this lines position
-  public Vector3 GetCurrHandPos() {
-    return this.transform.localPosition;
-  }
-  
-  //! Set the line position to current position
-  public void SetHandPos(Transform hand) {
-    ogHandPos = hand.position;
   }
 }

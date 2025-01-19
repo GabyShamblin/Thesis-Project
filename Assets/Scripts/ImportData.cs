@@ -32,7 +32,7 @@ public class ImportData : MonoBehaviour
       ReadPositions(mixed.ToString(), 1);
       ReadPositions(rotationMain.ToString(), 2);
 
-      // this.GetComponent<LineLogic>().StartLines();
+      this.GetComponent<Controller>().StartTracing();
     } else {
       Debug.LogError("Data file(s) not found");
     }

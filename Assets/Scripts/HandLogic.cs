@@ -17,7 +17,7 @@ public class HandLogic : MonoBehaviour
   
   [Tooltip("The angle difference allowed to move on to the next frame")]
   //! [Input] The angle difference allowed to move on to the next frame
-  public float rotationAllowance = 20f;
+  public float angleAllowance = 20f;
 
   [Tooltip("How many frames one hand is allowed to be ahead of the other before they are considered out of sync and the gesture is marked as failed")]
   //! [Input] Frame difference allowed between the hands
@@ -26,14 +26,17 @@ public class HandLogic : MonoBehaviour
   */
   [SerializeField] private int frameAllowance = 5;
 
-  //! Video controller
-  private VideoController video;
+  //! Controller
+  private Controller control;
   //! Whether the gesture has been failed
   private bool fail = false;
 
     void Start()
   {
-    video = this.GetComponent<VideoController>();
+    control = this.GetComponent<Controller>();
+
+    Globals.distAllow = distanceAllowance;
+    Globals.angleAllow = angleAllowance;
 
     // bool hasArms = false;
     // for (int i = 0; i < Globals.armCheck.Length; i++) {
@@ -62,7 +65,6 @@ public class HandLogic : MonoBehaviour
       }
 
       for (int i = 0; i < hands.Length; i++) {
-        // TODO: Fix this, check when arms are at the end of their movement
         // Check if all arms are finished
         if (hands[i].currFrame < Globals.traces[Globals.move].Count-1) {
           cont = false;
@@ -73,13 +75,10 @@ public class HandLogic : MonoBehaviour
         }
       }
 
-      // TODO: Video update check
-      // video.UpdateVideo(smallest);
-
       // If got to the end of the gesture, continue to next gesture (or restart)
       if (cont) {
-        if (fail) { StartCoroutine(video.Rewind()); }
-        else { video.Forward(); }
+        if (fail) { StartCoroutine(control.Rewind()); }
+        else { control.Forward(); }
         
         fail = false;
       }

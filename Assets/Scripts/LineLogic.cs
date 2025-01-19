@@ -13,8 +13,8 @@ public class LineLogic : MonoBehaviour
 	//! [Input List] The icons to use for replay
 	public GameObject[] replayIcons;
 
-	//! Video controller
-  private VideoController video;
+	//! Controller
+  private Controller control;
 	//! Hand logic
 	private HandLogic handLogic;
 	//! List of the replay hands
@@ -28,6 +28,7 @@ public class LineLogic : MonoBehaviour
 		if (replayIcons == null || replayIcons.Length == 0) {
 			Debug.LogError("Replay icons not set");
 		}
+		control = this.GetComponent<Controller>();
 		handLogic = this.GetComponent<HandLogic>();
 
 		replayHands = new GameObject[replayIcons.Length];
@@ -45,11 +46,9 @@ public class LineLogic : MonoBehaviour
 	}
 
 	//! Call update lines functions for both hands. Triggered by hand logic.
-	public void UpdateLines(int[] frames, bool toggle = true) {
-		int len = lines.Length < frames.Length ? lines.Length : frames.Length;
-		for (int i = 0; i < len; i++) {
-			lines[i].UpdateLine(frames[i], toggle);
-		}
+	public void UpdateLines(int frame, bool toggle = true) {
+		lines[0].UpdateLine(frame, toggle);
+		lines[1].UpdateLine(frame, toggle);
 	}
 
 	//! Play ghost hand animation to show what the user did wrong. Triggered by rewind.

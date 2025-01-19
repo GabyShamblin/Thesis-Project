@@ -4,12 +4,8 @@ using UnityEngine;
 using UnityEngine.Video;
 
 //! Controls the videos, lines, and audio
-public class VideoController : MonoBehaviour
+public class Controller : MonoBehaviour
 {
-  [Tooltip("The screen containing all UI aspects")]
-  //! [Input] The screen containing all UI aspects
-  [SerializeField] private GameObject screen;
-
   //! Line logic
   private LineLogic lineLogic;
   //! Export data
@@ -19,25 +15,42 @@ public class VideoController : MonoBehaviour
 
   void Start()
   {
-    if (screen == null) {
-      Debug.LogError("Screen is not set");
-    }
-    else if (screen.activeSelf == false) {
-      Debug.LogError("Screen is not active or set to correct canvas");
-    }
     lineLogic = GetComponent<LineLogic>();
     exportData = GetComponent<ExportData>();
   }
 
   //! Start video player. Triggered by import data.
-  public void StartTraces() {
+  public void StartTracing() {
     lineLogic.StartLines();
     Globals.start = true;
+    
+    // StartCoroutine(PlayMovement());
   }
 
-  // TODO: Add stuff to this to update everything. (Also rename to just controller, no video anymore)
+  private IEnumerator PlayMovement() {
+    for (int frame = 0; frame < Globals.traces[Globals.move][0].Positions.Count; frame++) {
+      lineLogic.UpdateLines(frame);
+      yield return new WaitForSeconds(0.01f);
+    }
+  }
+
+  // TODO: Add stuff to this to update everything.
   void Update() 
   {
+    if (Globals.paused) {
+      if (Input.GetKeyDown("up")) {
+        Debug.Log("Play key hit");
+        StartCoroutine(PlayMovement());
+      }
+      if (Input.GetKeyDown("right")) {
+        Debug.Log("Forward key hit");
+        Forward();
+      }
+      else if (Input.GetKeyDown("left")) {
+        Debug.Log("Rewind key hit");
+        StartCoroutine(Rewind());
+      }
+    }
   }
 
   //! Move video to next gesture. Triggered by moving hands to correct positions or clicking right arrow key.

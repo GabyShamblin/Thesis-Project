@@ -22,7 +22,9 @@ public static class Globals
 
 
 
-  // Offset/no offset, Keyframe/continuous, Manuel/bimanuel
+  // 0: No offset,  1: Offset/no offset
+  // 0: Continuous, 1: Keyframe
+  // 0: Manuel,     1: Bimanuel
   public static bool[] vis = new bool[3];
 
   // Total 8
@@ -43,6 +45,12 @@ public static class Globals
   public static float ghostOffset = 0.5f;
 
 
+
+  //! Distance allowance
+  public static float distAllow;
+
+  //! Angle allowance
+  public static float angleAllow;
 
   //! The current frame
   public static int currFrame = 0;

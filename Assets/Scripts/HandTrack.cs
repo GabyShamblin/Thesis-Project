@@ -9,16 +9,6 @@ using UnityEngine;
 */
 public class HandTrack : MonoBehaviour
 {
-  [Tooltip("The distance differece allowed to move on to the next frame")]
-  //! [Input] The distance differece allowed to move on to the next frame
-  public float distAllowance = 0.025f;
-
-  
-  [Tooltip("The angle difference allowed to move on to the next frame")]
-  //! [Input] The angle difference allowed to move on to the next frame
-  public float angleAllowance = 20f;
-  
-
   [Tooltip("Which hand is this (0 = left, 1 = right)")]
   [Range(0, 3)]
   //! Which hand the script is currently attatched to (0 = left, 1 = right)
@@ -77,16 +67,32 @@ public class HandTrack : MonoBehaviour
       );
 
       // Check distance between hand and correct position
-      float dist = Vector3.Distance(check, ghostHands.sceneGhost.transform.localPosition);
-      if (dist <= distAllowance) {
+      float dist;
+      if (Globals.vis[0]) {
+        dist = Vector3.Distance(check, ghostHands.sceneGhost.transform.localPosition);
+      } else {
+        dist = Vector3.Distance(check, this.transform.localPosition);
+      }
+      
+      if (dist <= Globals.distAllow) {
 
         // Use euler angles to make comparison easier
-        float angleDist = Vector3.Distance(ghostHands.sceneGhost.transform.eulerAngles, Globals.userHands[handIndex].Rotations[currFrame]);
+        float angleDist;
+        if (Globals.vis[0]) {
+          angleDist = Vector3.Distance(ghostHands.sceneGhost.transform.eulerAngles, Globals.userHands[handIndex].Rotations[currFrame]);
+        } else {
+          angleDist = Vector3.Distance(this.transform.eulerAngles, Globals.userHands[handIndex].Rotations[currFrame]);
+        }
 
-        if (angleDist <= angleAllowance) {
+        if (angleDist <= Globals.angleAllow) {
           // Save hand position & rotation for replay
-          Globals.userHands[handIndex].Positions.Add(ghostHands.sceneGhost.transform.localPosition);
-          Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.eulerAngles);
+          if (Globals.vis[0]) {
+            Globals.userHands[handIndex].Positions.Add(ghostHands.sceneGhost.transform.localPosition);
+            Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.eulerAngles);
+          } else {
+            Globals.userHands[handIndex].Positions.Add(this.transform.localPosition);
+            Globals.userHands[handIndex].Rotations.Add(this.transform.eulerAngles);
+          }
 
           // Next frame
           Globals.userHands[handIndex].Timestamps[currFrame] = timer;

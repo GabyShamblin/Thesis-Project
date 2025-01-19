@@ -9073,8 +9073,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b1da3ac4e1bd4447bb1deaf779437e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distAllowance: 0.025
-  angleAllowance: 20
   handIndex: 1
   iconLine: {fileID: 1560721271}
   UILine: {fileID: 2064345813}
@@ -11831,7 +11829,7 @@ Transform:
   m_Children:
   - {fileID: 1632274463}
   - {fileID: 1560721269}
-  m_Father: {fileID: 1070368927}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &858872493 stripped
 GameObject:
@@ -12430,6 +12428,7 @@ GameObject:
   - component: {fileID: 951557582}
   - component: {fileID: 951557581}
   - component: {fileID: 951557590}
+  - component: {fileID: 951557592}
   - component: {fileID: 951557585}
   - component: {fileID: 951557588}
   - component: {fileID: 951557591}
@@ -12489,7 +12488,7 @@ MonoBehaviour:
   - {fileID: 1286628126}
   - {fileID: 679179858}
   distanceAllowance: 0.025
-  rotationAllowance: 20
+  angleAllowance: 20
   frameAllowance: 60
 --- !u!114 &951557588
 MonoBehaviour:
@@ -12538,6 +12537,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LeftHand: {fileID: 1286628124}
   RightHand: {fileID: 679179856}
+--- !u!114 &951557592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 951557580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e371204da94764fbf76441841d7487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &961435368
 GameObject:
   m_ObjectHideFlags: 0
@@ -14379,7 +14390,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1070368927}
-  - component: {fileID: 1070368928}
   m_Layer: 0
   m_Name: Console
   m_TagString: Untagged
@@ -14402,24 +14412,11 @@ Transform:
   m_Children:
   - {fileID: 1155515814}
   - {fileID: 2058140603}
-  - {fileID: 855226914}
   - {fileID: 6011831495103765810}
   - {fileID: 1577177458}
   - {fileID: 1484483894}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1070368928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1070368926}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e15ad3df3a1d2f499e9943bb9fae358, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1077653379
 GameObject:
   m_ObjectHideFlags: 0
@@ -17381,8 +17378,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b1da3ac4e1bd4447bb1deaf779437e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distAllowance: 0.025
-  angleAllowance: 20
   handIndex: 0
   iconLine: {fileID: 1632274465}
   UILine: {fileID: 573703798}
@@ -20274,7 +20269,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iconPrefab: {fileID: 9204789518251842640, guid: b91d3b8dc9d3dce41b09b94015b762dc, type: 3}
   point: {fileID: 1649997614}
-  controller: 1
   lineNum: 1
   offset: {x: 0, y: 0, z: 0}
   frameText: {fileID: 2138963641}
@@ -20605,7 +20599,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iconPrefab: {fileID: 4214130410902278777, guid: 4c047be770bb80f47bc643c66785fca5, type: 3}
   point: {fileID: 799250181}
-  controller: 1
   lineNum: 0
   offset: {x: 0, y: 0, z: 0}
   frameText: {fileID: 385745387}
@@ -38712,6 +38705,7 @@ SceneRoots:
   - {fileID: 566518944}
   - {fileID: 705507995}
   - {fileID: 1509017132}
+  - {fileID: 855226914}
   - {fileID: 1070368927}
   - {fileID: 1914801468}
   - {fileID: 1449463418}
