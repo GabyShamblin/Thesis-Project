@@ -16,11 +16,68 @@ public class ExportData : MonoBehaviour
 	public HandTrack[] handTracks;
 	private Stats posStats = new Stats();
 	private Stats rotStats = new Stats();
+	private string path = "";
+	private string folderName = "User Data";
+
+	public void StartData() {
+		string key = "userNum";
+		if (PlayerPrefs.HasKey(key)) {
+			PlayerPrefs.SetString(key, (Int32.Parse(PlayerPrefs.GetString(key)) + 1).ToString());
+		} else {
+			PlayerPrefs.SetString(key, "0");
+		}
+		PlayerPrefs.Save();
+
+		path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\" + folderName;
+		// Debug.Log("Successfully created folder");
+	}
+
+	public void SaveData() {
+		Debug.Log("Saving data...");
+		// var content = ToCSV();
+		// WriteLine: thing, new block, another block ->
+		// https://discussions.unity.com/t/write-data-from-list-to-csv-file/735424/3
+		// https://discussions.unity.com/t/writing-position-data-to-a-csv-file/923012
+
+		string docName = PlayerPrefs.GetString("userNum") + ".csv";
+		using (StreamWriter writer = new StreamWriter(Path.Combine(path, docName))) {
+			writer.WriteLine(GenerateTitle());
+			int mostFrames = 
+				Globals.userHands[0].Positions.Count > Globals.userHands[1].Positions.Count ? 
+				Globals.userHands[0].Positions.Count : Globals.userHands[1].Positions.Count;
+
+			try {
+				string line;
+				// Note: User position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
+				for (int i = 0; i < mostFrames; i++) {
+					line = "";
+					for (int j = 0; j < 2; j++) {
+						// TODO: Check if one space is ok for seperation
+						if (i >= Globals.userHands[j].Positions.Count) {
+							line += "0.000000, 0.000000 ";
+						} else {
+							// line += GetPosAccuracy(j, i, handTracks[j].distAllowance) + " " + GetRotAccuracy(j, i, handTracks[j].angleAllowance) + " ";
+							line += Globals.userHands[j].Positions[i] + " " + Globals.userHands[j].Rotations[i] + " ";
+						}
+					}
+					line += Globals.userHands[0].Timestamps[i];
+					// writer.WriteLine(line);
+				}
+
+				posStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
+				rotStats.total += Globals.userHands[0].Rotations.Count + Globals.userHands[1].Rotations.Count;
+				line = posStats.ToString() + " " + rotStats.ToString();
+				// writer.WriteLine(line);
+			} catch (Exception e) {
+				writer.WriteLine("Error: " + e.ToString());
+			}
+		}
+
+	}
 
 	//! Write user data to a text file
-	public void WriteData(string docName = "output.txt") {
+	public void WriteData(string docName = "output.csv") {
 		Debug.Log("Writing data");
-		string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
 		using (StreamWriter writer = new StreamWriter(Path.Combine(path, docName))) {
 			int mostFrames = 
@@ -33,8 +90,9 @@ public class ExportData : MonoBehaviour
 				for (int i = 0; i < mostFrames; i++) {
 					line = "";
 					for (int j = 0; j < 2; j++) {
+						// TODO: Check if one space is ok for seperation
 						if (i >= Globals.userHands[j].Positions.Count) {
-							line += "0.00 0.00 ";
+							line += "0.000000 0.000000 ";
 						} else {
 							// line += GetPosAccuracy(j, i, handTracks[j].distAllowance) + " " + GetRotAccuracy(j, i, handTracks[j].angleAllowance) + " ";
 							line += Globals.userHands[j].Positions[i] + " " + Globals.userHands[j].Rotations[i] + " ";
@@ -45,7 +103,7 @@ public class ExportData : MonoBehaviour
 				}
 
 				posStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
-				rotStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
+				rotStats.total += Globals.userHands[0].Rotations.Count + Globals.userHands[1].Rotations.Count;
 				line = posStats.ToString() + " " + rotStats.ToString();
 				writer.WriteLine(line);
 			} catch (Exception e) {
@@ -66,7 +124,7 @@ public class ExportData : MonoBehaviour
 
 		string key = "scoreList";
 		if (PlayerPrefs.HasKey(key)) {
-			PlayerPrefs.SetString(key, PlayerPrefs.GetString(key) + ", " + score.ToString());
+			PlayerPrefs.SetString(key, (Int32.Parse(PlayerPrefs.GetString(key)) + 1).ToString());
 		} else {
 			// PlayerPrefs.SetString(key, score.ToString());
 			PlayerPrefs.SetString(key, "67, 79, 81, 55, 91, 98");
@@ -95,6 +153,31 @@ public class ExportData : MonoBehaviour
 		Debug.Log("Done writing");
 		Debug.Log("Score list: " + PlayerPrefs.GetString(key));
 		// chart.DisplayScore();
+	}
+
+	private string GenerateTitle() {
+		// string debug = Globals.trial + ": ";
+		string debug = "";
+    if (Globals.vis[0] == 0) {
+      debug += "place_";
+    } else {
+      debug += "offset_";
+    }
+    if (Globals.vis[1] == 0) {
+      debug += "cont_";
+    } else {
+      debug += "disc_";
+    }
+    if (Globals.vis[2] == 0) {
+      debug += "uni_";
+    } else if (Globals.vis[2] == 1) {
+      debug += "mir_";
+    } else {
+      debug += "asyc_";
+    }
+    debug += "" + Globals.move;
+
+		return debug;
 	}
 }
 

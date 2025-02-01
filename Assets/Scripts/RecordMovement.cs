@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class RecordMovement : MonoBehaviour
 {
-	[SerializeField] private GameObject LeftHand;
-	[SerializeField] private GameObject RightHand;
+	[SerializeField] private Transform LeftHand;
+	[SerializeField] private Transform RightHand;
 	string line = "";
 	float time = 0f;
 	int fileCount = 0;
@@ -35,12 +35,17 @@ public class RecordMovement : MonoBehaviour
 	
 	public void Recording() {
 		Debug.Log("Recording");
+		Vector3 leftPos = LeftHand.position;
+		Quaternion leftAngle = LeftHand.rotation;
+		Vector3 rightPos = RightHand.position;
+		Quaternion rightAngle = RightHand.rotation;
+		
 		time += Time.deltaTime;
 		line += 
-			LeftHand.transform.position.x +"  "+ LeftHand.transform.position.y +"  "+ LeftHand.transform.position.z +"  "+ 
-			LeftHand.transform.rotation.x +"  "+ LeftHand.transform.rotation.y +"  "+ LeftHand.transform.rotation.z +"  "+ 
-			RightHand.transform.position.x +"  "+ RightHand.transform.position.y +"  "+ RightHand.transform.position.z +"  "+ 
-			RightHand.transform.rotation.x +"  "+ RightHand.transform.rotation.y +"  "+ RightHand.transform.rotation.z +"  "+ 
+			leftPos.x		 +"  "+ leftPos.y    +"  "+ leftPos.z    +"  "+ 
+			leftAngle.x  +"  "+ leftAngle.y  +"  "+ leftAngle.z  +"  "+ leftAngle.w  +"  "+ 
+			rightPos.x 	 +"  "+ rightPos.y   +"  "+ rightPos.z 	 +"  "+ 
+			rightAngle.x +"  "+ rightAngle.y +"  "+ rightAngle.z +"  "+ rightAngle.w +"  "+ 
 			time.ToString() + "\n";
 	}
 

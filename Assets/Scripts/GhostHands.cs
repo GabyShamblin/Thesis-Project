@@ -33,7 +33,7 @@ public class GhostHands : MonoBehaviour
       Destroy(sceneGhost);
     }
 
-    if (Globals.vis[0] && Globals.ghostOffset != 0) {
+    if (Globals.vis[0] == 1 && Globals.ghostOffset != 0) {
       // Save the controller rotation and position for future movement caluclations
       startRotation = transform.rotation;
       startPosition = transform.forward * Globals.ghostOffset;
@@ -45,7 +45,7 @@ public class GhostHands : MonoBehaviour
 
   void Update()
   {
-    if (Globals.vis[0] && Globals.start) {
+    if (Globals.vis[0] == 1 && Globals.start) {
       if (!spawnedHands) {
         // Figure out how to stabilize hand 
         // this.transform.rotation = Quaternion.identity

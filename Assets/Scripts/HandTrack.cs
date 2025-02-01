@@ -51,7 +51,7 @@ public class HandTrack : MonoBehaviour
       // Set current frame to start if not correct
       if (currFrame < Globals.traces[Globals.move][handIndex].Positions.Count) {
         currFrame = 0;
-        if (Globals.vis[1]) {
+        if (Globals.vis[1] == 1) {
           iconLine.UpdateLine(currFrame);
         }
       }
@@ -68,7 +68,7 @@ public class HandTrack : MonoBehaviour
 
       // Check distance between hand and correct position
       float dist;
-      if (Globals.vis[0]) {
+      if (Globals.vis[0] == 1) {
         dist = Vector3.Distance(check, ghostHands.sceneGhost.transform.localPosition);
       } else {
         dist = Vector3.Distance(check, this.transform.localPosition);
@@ -76,36 +76,46 @@ public class HandTrack : MonoBehaviour
       
       if (dist <= Globals.distAllow) {
 
-        // Use euler angles to make comparison easier
-        float angleDist;
-        if (Globals.vis[0]) {
-          angleDist = Vector3.Distance(ghostHands.sceneGhost.transform.eulerAngles, Globals.userHands[handIndex].Rotations[currFrame]);
+        Quaternion angleCheck;
+        if (Globals.vis[0] == 1) {
+          angleCheck = Quaternion.Inverse(ghostHands.sceneGhost.transform.rotation) * Globals.userHands[handIndex].Rotations[currFrame];
         } else {
-          angleDist = Vector3.Distance(this.transform.eulerAngles, Globals.userHands[handIndex].Rotations[currFrame]);
+          angleCheck = Quaternion.Inverse(this.transform.rotation) * Globals.userHands[handIndex].Rotations[currFrame];
         }
+        // Use euler angles to make comparison easier
+        Vector3 angleDist = angleCheck.eulerAngles;
 
-        if (angleDist <= Globals.angleAllow) {
+        // Correct for angles that end up over 360
+        if (angleDist.x > 180) { angleDist.x -= 360; }
+        if (angleDist.y > 180) { angleDist.y -= 360; }
+        if (angleDist.z > 180) { angleDist.z -= 360; }
+
+        if (Math.Abs(angleDist.x) <= Globals.angleAllow && 
+            Math.Abs(angleDist.y) <= Globals.angleAllow && 
+            Math.Abs(angleDist.z) <= Globals.angleAllow) 
+        {
           // Save hand position & rotation for replay
-          if (Globals.vis[0]) {
+          // TODO: Make sure local rotation is correct and not just rotation
+          if (Globals.vis[0] == 1) {
             Globals.userHands[handIndex].Positions.Add(ghostHands.sceneGhost.transform.localPosition);
-            Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.eulerAngles);
+            Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.localRotation);
           } else {
             Globals.userHands[handIndex].Positions.Add(this.transform.localPosition);
-            Globals.userHands[handIndex].Rotations.Add(this.transform.eulerAngles);
+            Globals.userHands[handIndex].Rotations.Add(this.transform.localRotation);
           }
 
           // Next frame
           Globals.userHands[handIndex].Timestamps[currFrame] = timer;
           
           // Turn off current icon (if multiple traces)
-          if (!Globals.vis[1]) {
+          if (Globals.vis[1] == 0) {
             iconLine.UpdateLine(currFrame, false);
           }
           
           currFrame++;
           
           // Show icon for next frame
-          if (Globals.vis[1]) {
+          if (Globals.vis[1] == 1) {
             iconLine.UpdateLine(currFrame);
           }
         }

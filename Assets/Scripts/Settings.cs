@@ -24,14 +24,13 @@ public static class Globals
 
   // 0: No offset,  1: Offset/no offset
   // 0: Continuous, 1: Keyframe
-  // 0: Manuel,     1: Bimanuel
-  public static bool[] vis = new bool[3];
+  // 0: Unimanuel,  1: Mirror Bimanuel,  2: Async Bimanuel
+  public static int[] vis = new int[3];
 
-  // Total 8
-  // Offset switch: 4
-  // Frame switch: 2
-  // Hands switch: 1
-  public static int trial = 1;
+  // Total 12 (0-11)
+  public static int trial = 0;
+  // Store all remaining trials. Are randomly removed in Controller.Forward.
+  public static List<int> leftover = new List<int>();
 
   //! The current set of movements
   /*!
@@ -72,13 +71,13 @@ public class Hand
   //! User hand position for feedback, temporary and gets saved to user info
   public List<Vector3> Positions { get; set; }
   //! User hand rotation for feedback, temporary and gets saved to user info
-  public List<Vector3> Rotations { get; set; }
+  public List<Quaternion> Rotations { get; set; }
   //! Timestamp if the movement
   public List<float> Timestamps { get; set; }
 
   public Hand() {
     Positions = new List<Vector3>();
-    Rotations = new List<Vector3>();
+    Rotations = new List<Quaternion>();
     Timestamps = new List<float>();
   }
 

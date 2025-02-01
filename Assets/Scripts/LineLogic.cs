@@ -51,6 +51,13 @@ public class LineLogic : MonoBehaviour
 		lines[1].UpdateLine(frame, toggle);
 	}
 
+	//! Update the visualization of all lines
+	public void UpdateVis() {
+		foreach (LineDraw line in lines) {
+			line.UpdateVis();
+		}
+	}
+
 	//! Play ghost hand animation to show what the user did wrong. Triggered by rewind.
 	public IEnumerator ReplayHands() {
 		if (replayHands.Length == 0) { 
@@ -70,7 +77,7 @@ public class LineLogic : MonoBehaviour
 				for (int j = 0; j < 2; j++) {
 					try {
 						replayHands[j].transform.position = Globals.traces[Globals.move][Globals.currFrame].Positions[i];
-						replayHands[j].transform.eulerAngles = Globals.traces[Globals.move][Globals.currFrame].Rotations[i];
+						replayHands[j].transform.rotation = Globals.traces[Globals.move][Globals.currFrame].Rotations[i];
 					} catch (Exception e) {
 						Debug.LogError(e.ToString());
 						if (j >= replayHands.Length) {

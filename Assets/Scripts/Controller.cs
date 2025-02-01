@@ -13,8 +13,9 @@ public class Controller : MonoBehaviour
   //! Whether all gestures have been finished
   private bool finished = false;
 
-  void Start()
-  {
+
+
+  void Start() {
     lineLogic = GetComponent<LineLogic>();
     exportData = GetComponent<ExportData>();
   }
@@ -24,54 +25,112 @@ public class Controller : MonoBehaviour
     lineLogic.StartLines();
     Globals.start = true;
     
+    exportData.StartData();
     // StartCoroutine(PlayMovement());
   }
 
   private IEnumerator PlayMovement() {
+    string debug = Globals.trial + ": ";
+    if (Globals.vis[0] == 1) {
+      debug += "Offset, ";
+    } else {
+      debug += "In-place, ";
+    }
+    if (Globals.vis[1] == 1) {
+      debug += "Keyframe, ";
+    } else {
+      debug += "Continuous, ";
+    }
+    if (Globals.vis[2] == 0) {
+      debug += "Unimanuel, ";
+    } else if (Globals.vis[2] == 1) {
+      debug += "Mirror Bimanuel, ";
+    } else {
+      debug += "Async Bimanuel, ";
+    }
+    debug += "" + Globals.move;
+    Debug.Log(debug);
     for (int frame = 0; frame < Globals.traces[Globals.move][0].Positions.Count; frame++) {
       lineLogic.UpdateLines(frame);
       yield return new WaitForSeconds(0.01f);
     }
+    Globals.paused = true;
   }
 
-  // TODO: Add stuff to this to update everything.
   void Update() 
   {
     if (Globals.paused) {
       if (Input.GetKeyDown("up")) {
-        Debug.Log("Play key hit");
         StartCoroutine(PlayMovement());
       }
+      // else if (Input.GetKeyDown("down")) {
+      //   lineLogic.StartLines();
+      // }
+
       if (Input.GetKeyDown("right")) {
-        Debug.Log("Forward key hit");
         Forward();
       }
       else if (Input.GetKeyDown("left")) {
-        Debug.Log("Rewind key hit");
-        StartCoroutine(Rewind());
+        // StartCoroutine(Rewind());
       }
     }
   }
 
   //! Move video to next gesture. Triggered by moving hands to correct positions or clicking right arrow key.
   public void Forward() {
-    Debug.Log("Forward");
+    // Debug.Log("Forward");
     lineLogic.ResetLines();
     Globals.paused = false;
 
-    if (Globals.trial % 4 == 0) {
-      Globals.vis[0] = true;
+    if (Globals.leftover.Count <= 0) {
+      exportData.WriteData();
+      return;
     }
 
-    if (Globals.trial % 2 == 0) {
-      Globals.vis[1] = true;
+    if (Globals.move < 2) {
+      // Debug.Log("Controller: Next movement");
+      Globals.move++;
     } else {
-      Globals.vis[1] = false;
+      // Randomly get next trial number
+      int index = Random.Range(0, Globals.leftover.Count);
+      Globals.trial = Globals.leftover[index];
+      Globals.leftover.RemoveAt(index);
+      Debug.Log("Controller: Next visualization");
+
+      // First half of trials have no offset
+      // Second half are offset
+      if (Globals.trial < 6) {
+        Globals.vis[0] = 0;
+      } else {
+        Globals.vis[0] = 1;
+      }
+
+      // Trials 0-2 and 6-8 are continuous animated
+      // Trials 3-5 and 9-11 are keyframe animated
+      if (Globals.trial < 3 || (Globals.trial >= 6 && Globals.trial < 9)) {
+        Globals.vis[1] = 0;
+      } else {
+        Globals.vis[1] = 1;
+      }
+
+      // Trials 2,5,8,11 are async bimanuel
+      // Trials 1,4,7,10 are sync bimanuel
+      // Trials 0,3,6,9 are unimanuel
+      if (Globals.trial+1 % 3 == 0) {
+        Globals.vis[2] = 2;
+      }
+      else if (Globals.trial % 3 == 0) {
+        Globals.vis[2] = 0;
+      } 
+      else {
+        Globals.vis[2] = 1;
+      }
+
+      lineLogic.UpdateVis();
+
+      Globals.move = 0;
     }
-
-    Globals.vis[2] = !Globals.vis[2];
-
-    Globals.trial += 1;
+    StartCoroutine(PlayMovement());
   }
 
   //! Replay current gesture. Triggered by geting hand positions wrong or clicking left arrow key.
