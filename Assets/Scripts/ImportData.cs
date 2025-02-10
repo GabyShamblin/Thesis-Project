@@ -13,14 +13,9 @@ using UnityEngine;
 */
 public class ImportData : MonoBehaviour
 {
-  public TextAsset moveLeft0;
-  public TextAsset moveRight0;
-
-  public TextAsset moveLeft1;
-  public TextAsset moveRight1;
-
-  public TextAsset moveLeft2;
-  public TextAsset moveRight2;
+  public TextAsset move0;
+  public TextAsset move1;
+  public TextAsset move2;
   
   [HideInInspector] public string title = "";
 
@@ -36,14 +31,13 @@ public class ImportData : MonoBehaviour
 
   void Start()
   {
-    if (moveLeft0 != null && moveLeft1 != null && moveLeft2 != null && 
-        moveRight0 != null && moveRight1 != null && moveRight2 != null) {
+    if (move0 != null && move1 != null && move2 != null) {
       Globals.traces.Add(new List<Hand>(2));
       Globals.traces.Add(new List<Hand>(2));
       Globals.traces.Add(new List<Hand>(2));
-      ReadPositions(moveLeft0.ToString(), moveRight0.ToString(), 0);
-      ReadPositions(moveLeft1.ToString(), moveRight1.ToString(), 1);
-      ReadPositions(moveLeft2.ToString(), moveRight2.ToString(), 2);
+      ReadPositions(move0.ToString(), 0);
+      ReadPositions(move1.ToString(), 1);
+      ReadPositions(move2.ToString(), 2);
 
       this.GetComponent<Controller>().StartTracing();
     } else {
@@ -52,30 +46,27 @@ public class ImportData : MonoBehaviour
   }
 
   //! Read and store kinematics data
-  void ReadPositions(string dataL, string dataR, int movement) {
-    string[] linesL = dataL.Split("\n");
-    string[] linesR = dataR.Split("\n");
+  void ReadPositions(string data, int movement) {
+    // Add both hands
     Globals.traces[movement].Add(new Hand());
     Globals.traces[movement].Add(new Hand());
-    Debug.Log("Lines length: " + linesL.Length + " " + linesR.Length);
 
-    for (int i = 0; i < linesL.Length; i++) {
-      string lineL = linesL[i].Trim();
-      string lineR = linesR[i].Trim();
-      if (lineL == "" || lineL == "\n" || lineR == "" || lineR == "\n") {
-        break;
-      }
+    string[] lines = data.Split("\n");
+    Debug.Log("Lines length: " + lines.Length);
+
+    for (int i = 0; i < lines.Length; i++) {
+      string line = lines[i].Trim();
+      if (line == "" || line == "\n") { break; }
+
       // Seperate line into array
-      // TODO: Check if one space is ok for seperation
-      float[] numsL = lineL.Split(" ").Select(str => float.Parse(str.Trim())).ToArray();
-      float[] numsR = lineR.Split(" ").Select(str => float.Parse(str.Trim())).ToArray();
+      float[] nums = line.Split("  ").Select(str => float.Parse(str.Trim())).ToArray();
 
       // Grab each value
-      Vector3 posL = new Vector3(numsL[0], numsL[1] , numsL[2]);
-      Quaternion rotL = new Quaternion(numsL[3], numsL[4] , numsL[5], numsL[6]);
-      float time = numsL[7];
-      Vector3 posR = new Vector3(numsR[0], numsR[1] , numsR[2]);
-      Quaternion rotR = new Quaternion(numsR[3], numsR[4], numsR[5], numsR[6]);
+      Vector3 posL = new Vector3(nums[0], nums[1] , nums[2]);
+      Quaternion rotL = new Quaternion(nums[3], nums[4] , nums[5], nums[6]);
+      Vector3 posR = new Vector3(nums[7], nums[8] , nums[9]);
+      Quaternion rotR = new Quaternion(nums[10], nums[11], nums[12], nums[13]);
+      float time = nums[14];
 
       // Put data into arm info
       Globals.traces[movement][0].Positions.Add(posL);

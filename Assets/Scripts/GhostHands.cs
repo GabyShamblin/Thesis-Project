@@ -36,10 +36,9 @@ public class GhostHands : MonoBehaviour
     if (Globals.vis[0] == 1 && Globals.ghostOffset != 0) {
       // Save the controller rotation and position for future movement caluclations
       startRotation = transform.rotation;
-      startPosition = transform.forward * Globals.ghostOffset;
       
       // Create ghost hands directly in front of where the controllers are facing
-      sceneGhost = Instantiate(ghost, startPosition + transform.position, startRotation, parent);
+      sceneGhost = Instantiate(ghost, new Vector3(0,0,Globals.ghostOffset) + transform.position, startRotation, parent);
     }
   }
 

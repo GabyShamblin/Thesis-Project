@@ -31,12 +31,16 @@ public class HandLogic : MonoBehaviour
   //! Whether the gesture has been failed
   private bool fail = false;
 
-    void Start()
+  void Start() 
   {
     control = this.GetComponent<Controller>();
 
     Globals.distAllow = distanceAllowance;
     Globals.angleAllow = angleAllowance;
+
+    Globals.userHands = new List<Hand>(2);
+    Globals.userHands.Add(new Hand());
+    Globals.userHands.Add(new Hand());
 
     // bool hasArms = false;
     // for (int i = 0; i < Globals.armCheck.Length; i++) {

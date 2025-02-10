@@ -15,45 +15,48 @@ public class Controller : MonoBehaviour
 
 
 
-  void Start() {
-    lineLogic = GetComponent<LineLogic>();
-    exportData = GetComponent<ExportData>();
-  }
-
   //! Start video player. Triggered by import data.
   public void StartTracing() {
+    lineLogic = this.GetComponent<LineLogic>();
     lineLogic.StartLines();
     Globals.start = true;
     
+    exportData = this.GetComponent<ExportData>();
     exportData.StartData();
-    // StartCoroutine(PlayMovement());
+    StartCoroutine(PlayMovement());
   }
 
   private IEnumerator PlayMovement() {
-    string debug = Globals.trial + ": ";
-    if (Globals.vis[0] == 1) {
-      debug += "Offset, ";
-    } else {
-      debug += "In-place, ";
+    if (true) {
+      string debug = Globals.trial + ": ";
+      if (Globals.vis[0] == 1) {
+        debug += "Offset, ";
+      } else {
+        debug += "In-place, ";
+      }
+      if (Globals.vis[1] == 1) {
+        debug += "Keyframe, ";
+      } else {
+        debug += "Continuous, ";
+      }
+      if (Globals.vis[2] == 0) {
+        debug += "Unimanuel, ";
+      } else if (Globals.vis[2] == 1) {
+        debug += "Mirror Bimanuel, ";
+      } else {
+        debug += "Async Bimanuel, ";
+      }
+      debug += "" + Globals.move;
+      Debug.Log(debug);
     }
-    if (Globals.vis[1] == 1) {
-      debug += "Keyframe, ";
-    } else {
-      debug += "Continuous, ";
-    }
-    if (Globals.vis[2] == 0) {
-      debug += "Unimanuel, ";
-    } else if (Globals.vis[2] == 1) {
-      debug += "Mirror Bimanuel, ";
-    } else {
-      debug += "Async Bimanuel, ";
-    }
-    debug += "" + Globals.move;
-    Debug.Log(debug);
+
+    // Animate movement
     for (int frame = 0; frame < Globals.traces[Globals.move][0].Positions.Count; frame++) {
       lineLogic.UpdateLines(frame);
       yield return new WaitForSeconds(0.01f);
     }
+    // Reset back to first frame for user to follow
+    lineLogic.UpdateLines(0);
     Globals.paused = true;
   }
 
@@ -80,10 +83,12 @@ public class Controller : MonoBehaviour
   public void Forward() {
     // Debug.Log("Forward");
     lineLogic.ResetLines();
+    exportData.SaveData();
     Globals.paused = false;
 
     if (Globals.leftover.Count <= 0) {
-      exportData.WriteData();
+      // exportData.WriteData();
+      Debug.Log("WE ARE DONE!!!!!!!!!!!");
       return;
     }
 
@@ -130,12 +135,15 @@ public class Controller : MonoBehaviour
 
       Globals.move = 0;
     }
+
+    Globals.moveAttempt = 0;
     StartCoroutine(PlayMovement());
   }
 
   //! Replay current gesture. Triggered by geting hand positions wrong or clicking left arrow key.
   public IEnumerator Rewind() {
     Globals.start = false;
+    Globals.moveAttempt++;
     // audioFeedback.PlayOneShot(failAudio);
     yield return StartCoroutine(lineLogic.ReplayHands());
 

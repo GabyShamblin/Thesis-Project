@@ -32,13 +32,15 @@ public static class Globals
   // Store all remaining trials. Are randomly removed in Controller.Forward.
   public static List<int> leftover = new List<int>();
 
-  //! The current set of movements
+  //! The current set of movements. Not from the actual jigsaws, just me mimicing it.
   /*!
-    0 = Position
-    1 = Rotation
-    2 = Mixed
+    0 = Knot tying
+    1 = Needle passing
+    2 = Suturing
   */
   public static int move = 0;
+  //! How many attempts was made for a movement
+  public static int moveAttempt = 0;
 
   //! How much to offset the controller
   public static float ghostOffset = 0.5f;
@@ -62,7 +64,7 @@ public static class Globals
   public static List<List<Hand>> traces;
 
   // Saved user movements
-  public static List<Hand> userHands = new List<Hand>(2);
+  public static List<Hand> userHands;
 }
 
 //! Each arm has a list of data per frame of video

@@ -31,6 +31,9 @@ public class HandTrack : MonoBehaviour
   private bool first = true;
   private float timer = 0f;
 
+  [HideInInspector] public Vector3 correct;
+  [HideInInspector] public Vector3 correctR;
+
   void Start()
   {
     ghostHands = this.GetComponent<GhostHands>();
@@ -50,7 +53,7 @@ public class HandTrack : MonoBehaviour
     if (Globals.start && Globals.paused) {
       // Set current frame to start if not correct
       if (currFrame < Globals.traces[Globals.move][handIndex].Positions.Count) {
-        currFrame = 0;
+        // currFrame = 0;
         if (Globals.vis[1] == 1) {
           iconLine.UpdateLine(currFrame);
         }
@@ -60,30 +63,36 @@ public class HandTrack : MonoBehaviour
 
       // +/- is to offset to where the line center is so the line point and hand are on the same coordinate system
       Vector3 original = Globals.traces[Globals.move][handIndex].Positions[currFrame];
-      Vector3 check = new Vector3(
-        original.x,
-        original.y,
-        original.z + Globals.ghostOffset
-      );
-
-      // Check distance between hand and correct position
-      float dist;
-      if (Globals.vis[0] == 1) {
-        dist = Vector3.Distance(check, ghostHands.sceneGhost.transform.localPosition);
+      Vector3 check;
+      if (Globals.vis[0] == 0) {
+        check = original + iconLine.offset;
       } else {
+        check = new Vector3(
+          original.x,
+          original.y,
+          original.z + Globals.ghostOffset
+        );
+      }
+      correct = check;
+
+      // Check distance between hand and correct position (either this hand or ghost)
+      float dist;
+      if (Globals.vis[0] == 0) {
         dist = Vector3.Distance(check, this.transform.localPosition);
+      } else {
+        dist = Vector3.Distance(check, ghostHands.sceneGhost.transform.localPosition);
       }
       
       if (dist <= Globals.distAllow) {
-
         Quaternion angleCheck;
-        if (Globals.vis[0] == 1) {
-          angleCheck = Quaternion.Inverse(ghostHands.sceneGhost.transform.rotation) * Globals.userHands[handIndex].Rotations[currFrame];
+        if (Globals.vis[0] == 0) {
+          angleCheck = Quaternion.Inverse(this.transform.rotation) * Globals.traces[Globals.move][handIndex].Rotations[currFrame];
         } else {
-          angleCheck = Quaternion.Inverse(this.transform.rotation) * Globals.userHands[handIndex].Rotations[currFrame];
+          angleCheck = Quaternion.Inverse(ghostHands.sceneGhost.transform.rotation) * Globals.traces[Globals.move][handIndex].Rotations[currFrame];
         }
         // Use euler angles to make comparison easier
         Vector3 angleDist = angleCheck.eulerAngles;
+        correctR = angleDist;
 
         // Correct for angles that end up over 360
         if (angleDist.x > 180) { angleDist.x -= 360; }
@@ -97,15 +106,15 @@ public class HandTrack : MonoBehaviour
           // Save hand position & rotation for replay
           // TODO: Make sure local rotation is correct and not just rotation
           if (Globals.vis[0] == 1) {
-            Globals.userHands[handIndex].Positions.Add(ghostHands.sceneGhost.transform.localPosition);
-            Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.localRotation);
+            Globals.userHands[handIndex].Positions.Add(ghostHands.sceneGhost.transform.position);
+            Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.rotation);
+            Globals.userHands[handIndex].Timestamps.Add(timer);
           } else {
             Globals.userHands[handIndex].Positions.Add(this.transform.localPosition);
             Globals.userHands[handIndex].Rotations.Add(this.transform.localRotation);
+            Globals.userHands[handIndex].Timestamps.Add(timer);
           }
 
-          // Next frame
-          Globals.userHands[handIndex].Timestamps[currFrame] = timer;
           
           // Turn off current icon (if multiple traces)
           if (Globals.vis[1] == 0) {

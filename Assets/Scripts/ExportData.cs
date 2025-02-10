@@ -39,12 +39,15 @@ public class ExportData : MonoBehaviour
 		// https://discussions.unity.com/t/write-data-from-list-to-csv-file/735424/3
 		// https://discussions.unity.com/t/writing-position-data-to-a-csv-file/923012
 
-		string docName = PlayerPrefs.GetString("userNum") + ".csv";
+		string docName = "user" + PlayerPrefs.GetString("userNum") + ".csv";
 		using (StreamWriter writer = new StreamWriter(Path.Combine(path, docName))) {
 			writer.WriteLine(GenerateTitle());
 			int mostFrames = 
 				Globals.userHands[0].Positions.Count > Globals.userHands[1].Positions.Count ? 
 				Globals.userHands[0].Positions.Count : Globals.userHands[1].Positions.Count;
+			float moveAccuracy = 0.0f;
+			float posAccuracy = 0.0f;
+			float rotAccuracy = 0.0f;
 
 			try {
 				string line;
@@ -52,21 +55,30 @@ public class ExportData : MonoBehaviour
 				for (int i = 0; i < mostFrames; i++) {
 					line = "";
 					for (int j = 0; j < 2; j++) {
-						// TODO: Check if one space is ok for seperation
 						if (i >= Globals.userHands[j].Positions.Count) {
-							line += "0.000000, 0.000000 ";
+							line += "0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ";
 						} else {
-							// line += GetPosAccuracy(j, i, handTracks[j].distAllowance) + " " + GetRotAccuracy(j, i, handTracks[j].angleAllowance) + " ";
-							line += Globals.userHands[j].Positions[i] + " " + Globals.userHands[j].Rotations[i] + " ";
+							Vector3 pos = Globals.userHands[j].Positions[i];
+							Quaternion rot = Globals.userHands[j].Rotations[i];
+							posAccuracy = GetPosAccuracy(j, i, Globals.distAllow);
+							rotAccuracy = GetRotAccuracy(j, i, Globals.angleAllow);
+							moveAccuracy += posAccuracy + rotAccuracy;
+
+							// line += pos.x + ", " + pos.y + ", " + pos.z + ", " + posAccuracy + ", ";
+							// line += rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + ", " + rotAccuracy + ", ";
+							line += pos.x + ", " + pos.y + ", " + pos.z + ", ";
+							line += rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + ", ";
 						}
 					}
-					line += Globals.userHands[0].Timestamps[i];
-					// writer.WriteLine(line);
+					line += Globals.userHands[0].Timestamps[i] + ", " + (moveAccuracy/4);
+					moveAccuracy = 0.0f;
+
+					writer.WriteLine(line);
 				}
 
 				posStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
 				rotStats.total += Globals.userHands[0].Rotations.Count + Globals.userHands[1].Rotations.Count;
-				line = posStats.ToString() + " " + rotStats.ToString();
+				// line = posStats.ToString() + ", " + rotStats.ToString();
 				// writer.WriteLine(line);
 			} catch (Exception e) {
 				writer.WriteLine("Error: " + e.ToString());
@@ -155,6 +167,70 @@ public class ExportData : MonoBehaviour
 		// chart.DisplayScore();
 	}
 
+	// Get accuracy between correct and user position
+	private float GetPosAccuracy(int hand, int frame, float allowance) {
+		// Get correct position
+		// Note: The position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
+		Vector3 original = Globals.traces[Globals.move][hand].Positions[frame];
+		Vector3 check = original; // + new Vector3(0,0,Globals.ghostOffset);
+
+		// Calculate percent correct
+		float perc = 1 - (Vector3.Distance(check, Globals.userHands[hand].Positions[frame]) / allowance);
+		perc = (float)Math.Round(perc, 2);
+
+		if (perc < 0) {
+			Debug.Log("Frames: " + frame + " " + frame);
+			Debug.Log("Original: " + original);
+			Debug.Log("Check: " + check);
+			Debug.Log("User: " + Globals.userHands[hand].Positions[frame]);
+			Debug.Log("Distance: " + Vector3.Distance(check, Globals.userHands[hand].Positions[frame]));
+			Debug.Log("Allowance: " + allowance);
+			Debug.Log("Percent: " + perc);
+			Debug.Log("--------------------------------------------------------");
+		}
+
+		// Save percent and check min and max
+		posStats.perc += perc;
+		if (perc > posStats.max) {
+			posStats.max = perc;
+		}
+		if (perc < posStats.min) {
+			posStats.min = perc;
+		}
+
+		return perc;
+	}
+
+	// Get accuracy between correct and user rotation
+	private float GetRotAccuracy(int hand, int frame, float allowance) {
+		// Note: The position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
+		Quaternion original = Globals.traces[Globals.move][hand].Rotations[frame];
+		Quaternion user = Globals.userHands[hand].Rotations[frame];
+
+		Quaternion dist = Quaternion.Inverse(user) * original;
+		Vector3 angleDist = dist.eulerAngles;
+
+		if (angleDist.x > 180) { angleDist.x -= 360; }
+		if (angleDist.y > 180) { angleDist.y -= 360; }
+		if (angleDist.z > 180) { angleDist.z -= 360; }
+
+		float perc = 1 - ((
+			(Math.Abs(angleDist.x) / allowance) + 
+			(Math.Abs(angleDist.y) / allowance) + 
+			(Math.Abs(angleDist.z) / allowance)) / 3);
+		perc = (float)Math.Round(perc, 2);
+
+		rotStats.perc += perc;
+		if (perc > rotStats.max) {
+			rotStats.max = perc;
+		}
+		if (perc < rotStats.min) {
+			rotStats.min = perc;
+		}
+
+		return perc;
+	}
+
 	private string GenerateTitle() {
 		// string debug = Globals.trial + ": ";
 		string debug = "";
@@ -175,7 +251,7 @@ public class ExportData : MonoBehaviour
     } else {
       debug += "asyc_";
     }
-    debug += "" + Globals.move;
+    debug += Globals.move + "_" + Globals.moveAttempt;
 
 		return debug;
 	}

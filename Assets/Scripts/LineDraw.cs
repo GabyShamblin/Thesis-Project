@@ -20,7 +20,7 @@ public class LineDraw : MonoBehaviour
   public int lineNum = 0;
 
   [Tooltip("How much to offset line from the origin")]
-  public Vector3 offset = new Vector3(-0.45f, 1.5f, 0.5f);
+  [HideInInspector] public Vector3 offset;
 
   //! [Input] The debug text for what frame the line is on
   public TMP_Text frameText;
@@ -78,17 +78,19 @@ public class LineDraw : MonoBehaviour
     }
 
     // Icons are set based on global (0,0,0), so move the parent to proper hand position afterwards
-    transform.localPosition = new Vector3(
-      offset.x, 
-      offset.y, 
-      offset.z + Globals.ghostOffset
-    );
+    if (Globals.vis[0] == 1) {
+      transform.localPosition = new Vector3(
+        offset.x, 
+        offset.y, 
+        offset.z + Globals.ghostOffset
+      );
+    }
   }
 
   //! Set icons active are line is drawn. Triggered by hand track.
   public void UpdateLine(int frame, bool toggle = true) {
     if (frame < icons[Globals.move].Length && icons[Globals.move][frame] != null) {
-      // vis[1] = animation type
+      // If keyframe animation, turn off previous frame, then turn on current frame
       if (Globals.vis[1] == 1) {
         if (icons[Globals.move][prevFrame] != null) {
           icons[Globals.move][prevFrame].SetActive(false);
@@ -96,7 +98,10 @@ public class LineDraw : MonoBehaviour
         }
         icons[Globals.move][frame].SetActive(true);
       } else {
-        icons[Globals.move][frame].SetActive(toggle);
+        // If continuous animation, only turn on every 5th frame to lessen confusion
+        if (frame % 5 == 0) {
+          icons[Globals.move][frame].SetActive(toggle);
+        }
       }
       
       if (frameText != null) {
