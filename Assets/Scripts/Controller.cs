@@ -15,11 +15,23 @@ public class Controller : MonoBehaviour
 
 
 
+  void Awake() {
+    Globals.traces = new List<List<Hand>>(3);
+
+    // Create randomized list of trials left
+    Globals.leftover = new List<int>();
+    int i = 0;
+    while (i < 12) {
+      Globals.leftover.Add(i++);
+    }
+  }
+
   //! Start video player. Triggered by import data.
   public void StartTracing() {
     lineLogic = this.GetComponent<LineLogic>();
     lineLogic.StartLines();
     Globals.start = true;
+    UpdateVis();
     
     exportData = this.GetComponent<ExportData>();
     exportData.StartData();
@@ -60,6 +72,48 @@ public class Controller : MonoBehaviour
     Globals.paused = true;
   }
 
+  void UpdateVis() {
+    // Randomly get next trial number
+    int index = Random.Range(0, Globals.leftover.Count);
+    Globals.trial = Globals.leftover[index];
+    Globals.leftover.RemoveAt(index);
+    Debug.Log("Controller: Next visualization " + Globals.trial);
+
+    // First half of trials have no offset
+    // Second half are offset
+    if (Globals.trial < 6) {
+      Globals.vis[0] = 0;
+    } else {
+      Globals.vis[0] = 1;
+    }
+
+    // Trials 0-2 and 6-8 are continuous animated
+    // Trials 3-5 and 9-11 are keyframe animated
+    if (Globals.trial < 3 || (Globals.trial >= 6 && Globals.trial < 9)) {
+      Globals.vis[1] = 0;
+    } else {
+      Globals.vis[1] = 1;
+    }
+
+    // Trials 2,5,8,11 are async bimanuel
+    // Trials 1,4,7,10 are sync bimanuel
+    // Trials 0,3,6,9 are unimanuel
+    if (Globals.trial+1 % 3 == 0) {
+      Globals.vis[2] = 2;
+    }
+    else if (Globals.trial % 3 == 0) {
+      Globals.vis[2] = 0;
+    } 
+    else {
+      Globals.vis[2] = 1;
+    }
+
+    lineLogic.UpdateVis();
+
+    Globals.move = 0;
+    Globals.moveAttempt = 0;
+  }
+
   void Update() 
   {
     if (Globals.paused) {
@@ -93,50 +147,12 @@ public class Controller : MonoBehaviour
     }
 
     if (Globals.move < 2) {
-      // Debug.Log("Controller: Next movement");
+      Debug.Log("Controller: Next movement");
       Globals.move++;
     } else {
-      // Randomly get next trial number
-      int index = Random.Range(0, Globals.leftover.Count);
-      Globals.trial = Globals.leftover[index];
-      Globals.leftover.RemoveAt(index);
-      Debug.Log("Controller: Next visualization");
-
-      // First half of trials have no offset
-      // Second half are offset
-      if (Globals.trial < 6) {
-        Globals.vis[0] = 0;
-      } else {
-        Globals.vis[0] = 1;
-      }
-
-      // Trials 0-2 and 6-8 are continuous animated
-      // Trials 3-5 and 9-11 are keyframe animated
-      if (Globals.trial < 3 || (Globals.trial >= 6 && Globals.trial < 9)) {
-        Globals.vis[1] = 0;
-      } else {
-        Globals.vis[1] = 1;
-      }
-
-      // Trials 2,5,8,11 are async bimanuel
-      // Trials 1,4,7,10 are sync bimanuel
-      // Trials 0,3,6,9 are unimanuel
-      if (Globals.trial+1 % 3 == 0) {
-        Globals.vis[2] = 2;
-      }
-      else if (Globals.trial % 3 == 0) {
-        Globals.vis[2] = 0;
-      } 
-      else {
-        Globals.vis[2] = 1;
-      }
-
-      lineLogic.UpdateVis();
-
-      Globals.move = 0;
+      UpdateVis();
     }
 
-    Globals.moveAttempt = 0;
     StartCoroutine(PlayMovement());
   }
 

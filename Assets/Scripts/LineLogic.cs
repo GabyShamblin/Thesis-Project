@@ -47,8 +47,9 @@ public class LineLogic : MonoBehaviour
 
 	//! Call update lines functions for both hands. Triggered by hand logic.
 	public void UpdateLines(int frame, bool toggle = true) {
-		lines[0].UpdateLine(frame, toggle);
-		lines[1].UpdateLine(frame, toggle);
+		foreach (LineDraw line in lines) {
+			line.UpdateLine(frame, toggle);
+		}
 	}
 
 	//! Update the visualization of all lines
@@ -145,10 +146,8 @@ public class LineLogic : MonoBehaviour
 
 	//! Call reset line functions for all lines. Triggered by forward and rewind.
 	public void ResetLines() {
-		for (int i = 0; i < lines.Length; i++) {
-			lines[i].ResetLine();
-			// Globals.hands[i].Positions = new List<Vector3>();
-			// Globals.hands[i].Rotations = new List<Quaternion>();
+		foreach (LineDraw line in lines) {
+			line.ResetLine();
 		}
 		handLogic.ResetHands();
 	}

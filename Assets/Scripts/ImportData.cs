@@ -19,16 +19,6 @@ public class ImportData : MonoBehaviour
   
   [HideInInspector] public string title = "";
 
-  void Awake() {
-    Globals.traces = new List<List<Hand>>(3);
-
-    Globals.leftover = new List<int>();
-    int i = 0;
-    while (i < 12) {
-      Globals.leftover.Add(i++);
-    }
-  }
-
   void Start()
   {
     if (move0 != null && move1 != null && move2 != null) {

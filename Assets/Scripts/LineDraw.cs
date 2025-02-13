@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
 
@@ -85,6 +86,8 @@ public class LineDraw : MonoBehaviour
         offset.z + Globals.ghostOffset
       );
     }
+
+    UpdateVis();
   }
 
   //! Set icons active are line is drawn. Triggered by hand track.
@@ -149,9 +152,17 @@ public class LineDraw : MonoBehaviour
       skipFrames = 1;
     }
 
-    // Manuel vs Bimanuel (Turn off left hand)
+    // Manuel = Right
+    // Mirror = Left, Mirror Right
+    // Async = Left, Right
     if (lineNum == 0) {
-      this.gameObject.SetActive(Globals.vis[2] == 1);
+      if (Regex.IsMatch(this.gameObject.name, "mirror", RegexOptions.IgnoreCase)) {
+        this.gameObject.SetActive(Globals.vis[2] == 1);
+      } else {
+        this.gameObject.SetActive(Globals.vis[2] == 1 || Globals.vis[2] == 2);
+      }
+    } else {
+      this.gameObject.SetActive(Globals.vis[2] == 0 || Globals.vis[2] == 2);
     }
   }
 

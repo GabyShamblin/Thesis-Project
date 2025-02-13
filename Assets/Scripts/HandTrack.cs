@@ -18,10 +18,6 @@ public class HandTrack : MonoBehaviour
   [Tooltip("The respective icon line draw script")]
   public LineDraw iconLine;
 
-  //! [Input] The UI selection line
-  [Tooltip("The UI selection line")]
-  public GameObject UILine;
-
   public ExportData exportData;
 
   //! Current frame
@@ -45,10 +41,6 @@ public class HandTrack : MonoBehaviour
 
   void Update()
   {
-    if (Globals.start) {
-      UILine.SetActive(false);
-    }
-
     // Check if initial load is done and video is paused
     if (Globals.start && Globals.paused) {
       // Set current frame to start if not correct
@@ -65,13 +57,31 @@ public class HandTrack : MonoBehaviour
       Vector3 original = Globals.traces[Globals.move][handIndex].Positions[currFrame];
       Vector3 check;
       if (Globals.vis[0] == 0) {
-        check = original + iconLine.offset;
+        // If mirror bimanuel, correct flip on y axis
+        if (Globals.vis[2] == 1 && handIndex == 1) {
+          check = new Vector3(
+            (original.x + iconLine.offset.x) * -1,
+            original.y + iconLine.offset.y,
+            original.z + iconLine.offset.z
+          );
+        } else {
+          check = original + iconLine.offset;
+        }
       } else {
-        check = new Vector3(
-          original.x,
-          original.y,
-          original.z + Globals.ghostOffset
-        );
+        // If mirror bimanuel, correct flip on y axis
+        if (Globals.vis[2] == 1 && handIndex == 1) {
+          check = new Vector3(
+            (original.x + iconLine.offset.x) * -1,
+            original.y + iconLine.offset.y,
+            original.z + iconLine.offset.z + Globals.ghostOffset
+          );
+        } else {
+          check = new Vector3(
+            original.x + iconLine.offset.x,
+            original.y + iconLine.offset.y,
+            original.z + iconLine.offset.z + Globals.ghostOffset
+          );
+        }
       }
       correct = check;
 
