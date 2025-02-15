@@ -114,7 +114,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a50daaaec0bdc9f4db04d3696d741a5f, type: 2}
+  - {fileID: 2100000, guid: fe7f984b7bd7b6b44b81031f8bb36b57, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -314,7 +314,7 @@ GameObject:
   - component: {fileID: 5779237447881845299}
   - component: {fileID: 44273410011174107}
   m_Layer: 0
-  m_Name: MirrorRightControllerIcon 1
+  m_Name: MirrorRightControllerIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -374,7 +374,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderer: {fileID: 7427191958825510790}
   color1: {r: 0, g: 0, b: 1, a: 1}
-  color2: {r: 0, g: 1, b: 1, a: 1}
+  color2: {r: 0, g: 1, b: 1, a: 0.21568628}
 --- !u!1 &4466586743247955147
 GameObject:
   m_ObjectHideFlags: 0

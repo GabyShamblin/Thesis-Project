@@ -410,7 +410,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a50daaaec0bdc9f4db04d3696d741a5f, type: 2}
+  - {fileID: 2100000, guid: fe7f984b7bd7b6b44b81031f8bb36b57, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -591,4 +591,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderer: {fileID: 2563166288504128201}
   color1: {r: 0, g: 0, b: 0.5019608, a: 1}
-  color2: {r: 0, g: 1, b: 1, a: 1}
+  color2: {r: 0, g: 1, b: 1, a: 0.21568628}

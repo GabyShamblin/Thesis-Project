@@ -39,8 +39,7 @@ public class HandTrack : MonoBehaviour
     }
   }
 
-  void Update()
-  {
+  void Update() {
     // Check if initial load is done and video is paused
     if (Globals.start && Globals.paused) {
       // Set current frame to start if not correct
