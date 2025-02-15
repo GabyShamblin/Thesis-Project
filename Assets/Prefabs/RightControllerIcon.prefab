@@ -410,7 +410,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: fe7f984b7bd7b6b44b81031f8bb36b57, type: 2}
+  - {fileID: 2100000, guid: a50daaaec0bdc9f4db04d3696d741a5f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -529,6 +529,7 @@ GameObject:
   m_Component:
   - component: {fileID: 306218857894792327}
   - component: {fileID: 6390512606679646018}
+  - component: {fileID: 5571166570907063293}
   m_Layer: 0
   m_Name: RightControllerIcon
   m_TagString: Untagged
@@ -576,3 +577,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5571166570907063293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9204789518251842640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 261f503b06a56f542a9d4c0e32c521d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderer: {fileID: 2563166288504128201}
+  color1: {r: 0, g: 0, b: 0.5019608, a: 1}
+  color2: {r: 0, g: 1, b: 1, a: 1}

@@ -312,6 +312,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2830684751678179227}
   - component: {fileID: 5779237447881845299}
+  - component: {fileID: -7731565749090623940}
   m_Layer: 0
   m_Name: LeftControllerIcon
   m_TagString: Untagged
@@ -359,6 +360,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-7731565749090623940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4214130410902278777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 261f503b06a56f542a9d4c0e32c521d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderer: {fileID: 7427191958825510790}
+  color1: {r: 0.7921569, g: 0.20784314, b: 0.011764706, a: 1}
+  color2: {r: 1, g: 0.6135118, b: 0, a: 1}
 --- !u!1 &4466586743247955147
 GameObject:
   m_ObjectHideFlags: 0

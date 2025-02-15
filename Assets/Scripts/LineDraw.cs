@@ -26,8 +26,6 @@ public class LineDraw : MonoBehaviour
   //! [Input] The debug text for what frame the line is on
   public TMP_Text frameText;
 
-  //! How much to change the color
-  private float blend = 0;
   //! The previous frame activated
   private int prevFrame = 0;
   private int skipFrames = 1;
@@ -112,9 +110,9 @@ public class LineDraw : MonoBehaviour
       }
 
       // Percent of the way through the gesture for color changing
-      blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
-      Renderer render = icons[Globals.move][frame].transform.GetChild(2).GetComponent<Renderer>();
-      render.material.SetFloat("_Blend", blend);
+      float blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
+      IconColorChange render = icons[Globals.move][frame].GetComponent<IconColorChange>();
+      render.UpdateColor(blend);
     }
   }
 
@@ -137,9 +135,9 @@ public class LineDraw : MonoBehaviour
         }
       
         // Percent of the way through the gesture for color changing
-        blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
-        Renderer render = icons[Globals.move][frame].transform.GetChild(2).GetComponent<Renderer>();
-        render.material.SetFloat("_Blend", blend);
+        float blend = (float)frame / (float)Globals.traces[Globals.move][lineNum].Positions.Count;
+        IconColorChange render = icons[Globals.move][frame].GetComponent<IconColorChange>();
+        render.UpdateColor(blend);
       }
     }
   }
