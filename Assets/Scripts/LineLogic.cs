@@ -61,20 +61,16 @@ public class LineLogic : MonoBehaviour
 
 	//! Play ghost hand animation to show what the user did wrong. Triggered by rewind.
 	public IEnumerator ReplayHands() {
-		if (replayHands.Length == 0) { 
-			Debug.LogError("Replay icons are not set");
-			yield break;
-		}
+		if (replayHands.Length > 0) {
+			// If the hands have different counts, make sure to use the lowest
+			int lessHands = 
+				Globals.traces[Globals.move][0].Positions.Count < Globals.traces[Globals.move][1].Positions.Count ? 
+				Globals.traces[Globals.move][0].Positions.Count : Globals.traces[Globals.move][1].Positions.Count;
+			// Set all hands active
+			foreach (GameObject hand in replayHands) { hand.SetActive(true); }
 
-		// If the hands have different counts, make sure to use the lowest
-		int lessHands = 
-			Globals.traces[Globals.move][0].Positions.Count < Globals.traces[Globals.move][1].Positions.Count ? 
-			Globals.traces[Globals.move][0].Positions.Count : Globals.traces[Globals.move][1].Positions.Count;
-		// Set all hands active
-		foreach (GameObject hand in replayHands) { hand.SetActive(true); }
-
-		// Go through all hand movements
-    for (int i = 0; i < lessHands; i++) {
+			// Go through all hand movements
+			for (int i = 0; i < lessHands; i++) {
 				for (int j = 0; j < 2; j++) {
 					try {
 						replayHands[j].transform.position = Globals.traces[Globals.move][Globals.currFrame].Positions[i];
@@ -99,9 +95,12 @@ public class LineLogic : MonoBehaviour
 
 				// Debug.Log("Ghost hand " + i + "/" + lessHands + ": " + replayHands[0].transform.position);
 				yield return new WaitForSeconds(0.1f);
-    }
+			}
 
-		foreach (GameObject hand in replayHands) { hand.SetActive(false); }
+			foreach (GameObject hand in replayHands) { hand.SetActive(false); }
+		} else {
+			Debug.LogWarning("Replay hands not set");
+		}
   }
 
 	//! Save the user's movements. Triggered by forward.

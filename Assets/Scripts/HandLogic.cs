@@ -28,6 +28,9 @@ public class HandLogic : MonoBehaviour
 
   //! Controller
   private Controller control;
+
+  //! Whether the gesture has been finished
+  private bool cont = false;
   //! Whether the gesture has been failed
   private bool fail = false;
 
@@ -56,34 +59,27 @@ public class HandLogic : MonoBehaviour
     }
   }
 
-  void Update()
-  {
+  void Update() {
     if (Globals.start && Globals.paused) {
-      // Check if all hands are in the correct positions
-      bool cont = true;
-      int smallest = 100000000;
-
       // If the arms are out of sync, fail and restart gesture once finished
       if (Math.Abs(hands[0].currFrame - hands[1].currFrame) > frameAllowance && !fail) {
         fail = true;
+        Debug.Log("Fail gesture: " + Math.Abs(hands[0].currFrame - hands[1].currFrame) + " > " + frameAllowance);
       }
 
       for (int i = 0; i < hands.Length; i++) {
         // Check if all arms are finished
-        if (hands[i].currFrame < Globals.traces[Globals.move].Count-1) {
-          cont = false;
-        }
-        
-        if (hands[i].currFrame < smallest) {
-          smallest = hands[i].currFrame;
-        }
+        if (hands[i].currFrame >= Globals.traces[Globals.move][i].Positions.Count-1) {
+          cont = true;
+          Debug.Log(i + ": " + hands[i].currFrame + " >= " + (Globals.traces[Globals.move][i].Positions.Count-1));
+        } 
       }
 
       // If got to the end of the gesture, continue to next gesture (or restart)
       if (cont) {
         if (fail) { StartCoroutine(control.Rewind()); }
         else { control.Forward(); }
-        
+        cont = false;
         fail = false;
       }
     }

@@ -372,7 +372,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 261f503b06a56f542a9d4c0e32c521d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderer: {fileID: 7427191958825510790}
+  controllerRender: {fileID: 7427191958825510790}
   color1: {r: 0.7921569, g: 0.20784314, b: 0.011764706, a: 1}
   color2: {r: 1, g: 0.6135118, b: 0, a: 0.21568628}
 --- !u!1 &4466586743247955147

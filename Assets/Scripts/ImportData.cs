@@ -19,6 +19,10 @@ public class ImportData : MonoBehaviour
   
   [HideInInspector] public string title = "";
 
+  void Awake() {
+    Globals.traces = new List<List<Hand>>(3);
+  }
+
   void Start()
   {
     if (move0 != null && move1 != null && move2 != null) {

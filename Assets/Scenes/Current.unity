@@ -4108,9 +4108,9 @@ MonoBehaviour:
   hands:
   - {fileID: 1111030365}
   - {fileID: 1158068007}
-  distanceAllowance: 0.025
-  angleAllowance: 20
-  frameAllowance: 10
+  distanceAllowance: 0.02
+  angleAllowance: 15
+  frameAllowance: 15
 --- !u!114 &951557588
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4127,9 +4127,7 @@ MonoBehaviour:
   - {fileID: 1632274465}
   - {fileID: 1560721271}
   - {fileID: 2075705299}
-  replayIcons:
-  - {fileID: 4214130410902278777, guid: c4d4adb9981627847b78d0a4d10dcbbb, type: 3}
-  - {fileID: 9204789518251842640, guid: 5be15870f399cbc4c943b6f6e9eeba72, type: 3}
+  replayIcons: []
 --- !u!114 &951557590
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4171,6 +4169,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75e371204da94764fbf76441841d7487, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioFeedback: {fileID: 1256823294}
+  successAudio: {fileID: 8300000, guid: 14f1ecd3a8376fa439671aee7915d80b, type: 3}
+  failAudio: {fileID: 8300000, guid: 04e78b33d3aa11742814c1f9f5c54a3f, type: 3}
 --- !u!1 &956876061
 GameObject:
   m_ObjectHideFlags: 0
@@ -5161,7 +5162,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handIndex: 0
   iconLine: {fileID: 1632274465}
-  mirrorIconLine: {fileID: 0}
   exportData: {fileID: 951557590}
   currFrame: 0
   correct: {x: 0, y: 0, z: 0}
@@ -5391,7 +5391,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   handIndex: 1
   iconLine: {fileID: 1560721271}
-  mirrorIconLine: {fileID: 2075705299}
   exportData: {fileID: 951557590}
   currFrame: 0
   correct: {x: 0, y: 0, z: 0}
@@ -5981,7 +5980,7 @@ Transform:
   m_GameObject: {fileID: 1256823293}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

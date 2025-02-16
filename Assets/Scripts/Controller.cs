@@ -6,18 +6,18 @@ using UnityEngine.Video;
 //! Controls the videos, lines, and audio
 public class Controller : MonoBehaviour
 {
+  [SerializeField] private AudioSource audioFeedback;
+  [SerializeField] private AudioClip successAudio;
+  [SerializeField] private AudioClip failAudio;
+
   //! Line logic
   private LineLogic lineLogic;
   //! Export data
   private ExportData exportData;
-  //! Whether all gestures have been finished
-  private bool finished = false;
 
 
 
   void Awake() {
-    Globals.traces = new List<List<Hand>>(3);
-
     // Create randomized list of trials left
     Globals.leftover = new List<int>();
     int i = 0;
@@ -74,7 +74,7 @@ public class Controller : MonoBehaviour
 
   void UpdateVis() {
     // Randomly get next trial number
-    int index = Random.Range(0, Globals.leftover.Count);
+    int index = 7; //Random.Range(0, Globals.leftover.Count);
     Globals.trial = Globals.leftover[index];
     Globals.leftover.RemoveAt(index);
     Debug.Log("Controller: Next visualization " + Globals.trial);
@@ -128,14 +128,15 @@ public class Controller : MonoBehaviour
         Forward();
       }
       else if (Input.GetKeyDown("left")) {
-        // StartCoroutine(Rewind());
+        StartCoroutine(Rewind());
       }
     }
   }
 
   //! Move video to next gesture. Triggered by moving hands to correct positions or clicking right arrow key.
   public void Forward() {
-    // Debug.Log("Forward");
+    Debug.Log("Forward");
+    audioFeedback.PlayOneShot(successAudio);
     lineLogic.ResetLines();
     exportData.SaveData();
     Globals.paused = false;
@@ -158,15 +159,13 @@ public class Controller : MonoBehaviour
 
   //! Replay current gesture. Triggered by geting hand positions wrong or clicking left arrow key.
   public IEnumerator Rewind() {
+    Debug.Log("Rewind");
+    audioFeedback.PlayOneShot(failAudio);
     Globals.start = false;
     Globals.moveAttempt++;
-    // audioFeedback.PlayOneShot(failAudio);
+    lineLogic.ResetLines();
     yield return StartCoroutine(lineLogic.ReplayHands());
 
-    Debug.Log("Rewind");
-    lineLogic.ResetLines();
-    for ( int i = 0; i < 2; i++) {
-      Globals.armCheck[i] = 0;
-    }
+    StartCoroutine(PlayMovement());
   }
 }

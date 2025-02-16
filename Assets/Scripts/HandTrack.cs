@@ -26,7 +26,6 @@ public class HandTrack : MonoBehaviour
   [HideInInspector] public int currFrame = 0;
 
   private GhostHands ghostHands;
-  private bool first = true;
   private float timer = 0f;
 
   [HideInInspector] public Vector3 correct;
