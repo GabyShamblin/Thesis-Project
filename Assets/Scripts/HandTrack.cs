@@ -10,13 +10,15 @@ using UnityEngine;
 public class HandTrack : MonoBehaviour
 {
   [Tooltip("Which hand is this (0 = left, 1 = right)")]
-  [Range(0, 3)]
+  [Range(0, 1)]
   //! Which hand the script is currently attatched to (0 = left, 1 = right)
   public int handIndex = 0;
 
   //! [Input] Respective icon line script
   [Tooltip("The respective icon line draw script")]
   public LineDraw iconLine;
+
+  // public LineDraw mirrorIconLine;
 
   public ExportData exportData;
 
@@ -29,6 +31,7 @@ public class HandTrack : MonoBehaviour
 
   [HideInInspector] public Vector3 correct;
   [HideInInspector] public Vector3 correctR;
+  [HideInInspector] public float dist;
 
   void Start()
   {
@@ -53,43 +56,27 @@ public class HandTrack : MonoBehaviour
       timer += Time.deltaTime;
 
       // +/- is to offset to where the line center is so the line point and hand are on the same coordinate system
-      Vector3 original = Globals.traces[Globals.move][handIndex].Positions[currFrame];
+      Vector3 original;
       Vector3 check;
-      if (Globals.vis[0] == 0) {
+      if (Globals.vis[2] == 1 && handIndex == 1) {
         // If mirror bimanuel, correct flip on y axis
-        if (Globals.vis[2] == 1 && handIndex == 1) {
-          check = new Vector3(
-            (original.x + iconLine.offset.x) * -1,
-            original.y + iconLine.offset.y,
-            original.z + iconLine.offset.z
-          );
-        } else {
-          check = original + iconLine.offset;
-        }
+        original = Globals.traces[Globals.move][0].Positions[currFrame];
+        check = new Vector3(
+          (original.x * -1) + iconLine.offset.x,
+          original.y + iconLine.offset.y,
+          original.z + iconLine.offset.z
+        );
       } else {
-        // If mirror bimanuel, correct flip on y axis
-        if (Globals.vis[2] == 1 && handIndex == 1) {
-          check = new Vector3(
-            (original.x + iconLine.offset.x) * -1,
-            original.y + iconLine.offset.y,
-            original.z + iconLine.offset.z + Globals.ghostOffset
-          );
-        } else {
-          check = new Vector3(
-            original.x + iconLine.offset.x,
-            original.y + iconLine.offset.y,
-            original.z + iconLine.offset.z + Globals.ghostOffset
-          );
-        }
+        original = Globals.traces[Globals.move][handIndex].Positions[currFrame];
+        check = original + iconLine.offset;
       }
       correct = check;
 
       // Check distance between hand and correct position (either this hand or ghost)
-      float dist;
       if (Globals.vis[0] == 0) {
-        dist = Vector3.Distance(check, this.transform.localPosition);
+        dist = Vector3.Distance(check, this.transform.position);
       } else {
-        dist = Vector3.Distance(check, ghostHands.sceneGhost.transform.localPosition);
+        dist = Vector3.Distance(check, ghostHands.sceneGhost.transform.position);
       }
       
       if (dist <= Globals.distAllow) {
@@ -114,13 +101,13 @@ public class HandTrack : MonoBehaviour
         {
           // Save hand position & rotation for replay
           // TODO: Make sure local rotation is correct and not just rotation
-          if (Globals.vis[0] == 1) {
-            Globals.userHands[handIndex].Positions.Add(ghostHands.sceneGhost.transform.position);
-            Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.rotation);
-            Globals.userHands[handIndex].Timestamps.Add(timer);
-          } else {
+          if (Globals.vis[0] == 0) {
             Globals.userHands[handIndex].Positions.Add(this.transform.localPosition);
             Globals.userHands[handIndex].Rotations.Add(this.transform.localRotation);
+            Globals.userHands[handIndex].Timestamps.Add(timer);
+          } else {
+            Globals.userHands[handIndex].Positions.Add(ghostHands.sceneGhost.transform.position);
+            Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.rotation);
             Globals.userHands[handIndex].Timestamps.Add(timer);
           }
 

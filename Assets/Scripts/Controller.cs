@@ -98,14 +98,14 @@ public class Controller : MonoBehaviour
     // Trials 2,5,8,11 are async bimanuel
     // Trials 1,4,7,10 are sync bimanuel
     // Trials 0,3,6,9 are unimanuel
-    if (Globals.trial+1 % 3 == 0) {
-      Globals.vis[2] = 2;
-    }
-    else if (Globals.trial % 3 == 0) {
+    if (Globals.trial % 3 == 0) {
       Globals.vis[2] = 0;
+    }
+    else if (Globals.trial % 3 == 1) {
+      Globals.vis[2] = 1;
     } 
     else {
-      Globals.vis[2] = 1;
+      Globals.vis[2] = 2;
     }
 
     lineLogic.UpdateVis();

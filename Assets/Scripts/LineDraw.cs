@@ -144,6 +144,11 @@ public class LineDraw : MonoBehaviour
 
   //! Update the visualization of this line
   public void UpdateVis() {
+    if (Globals.vis[0] == 1) {
+      transform.position = transform.position + new Vector3(0,0,Globals.ghostOffset);
+      offset = transform.position;
+    }
+
     if (Globals.vis[1] == 1) {
       skipFrames = 5;
     } else {

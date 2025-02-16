@@ -10,13 +10,11 @@ public class GhostHands : MonoBehaviour
   [Tooltip("The ghost hand prefab")]
   public GameObject ghost;
 
+  public Transform parent;
+
   [HideInInspector] public GameObject sceneGhost;
 
-  //! Parent rotation
-  private Transform parent;
   private Vector3 initTempGhost;
-  private Quaternion startRotation;
-  private Vector3 startPosition;
   private bool spawnedHands = false;
 
   void Start()
@@ -34,11 +32,9 @@ public class GhostHands : MonoBehaviour
     }
 
     if (Globals.vis[0] == 1 && Globals.ghostOffset != 0) {
-      // Save the controller rotation and position for future movement caluclations
-      startRotation = transform.rotation;
-      
+     
       // Create ghost hands directly in front of where the controllers are facing
-      sceneGhost = Instantiate(ghost, new Vector3(0,0,Globals.ghostOffset) + transform.position, startRotation, parent);
+      sceneGhost = Instantiate(ghost, new Vector3(0,0,Globals.ghostOffset) + transform.position, transform.rotation, parent);
     }
   }
 
@@ -54,7 +50,7 @@ public class GhostHands : MonoBehaviour
       } else {
         // Make ghost hands follow hand rotation/position
         sceneGhost.transform.rotation = transform.rotation;
-        sceneGhost.transform.position = startPosition + transform.position;
+        sceneGhost.transform.position = new Vector3(0,0,Globals.ghostOffset) + transform.position;
       }
     }
   }

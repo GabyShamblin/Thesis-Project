@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,21 +17,21 @@ public class zzzDebug : MonoBehaviour
 
     void Update() {
       text.text = Visual() + "\n" +
-                  handTrack.correct.ToString() + " = " + hand.position.ToString() + "\n" +
-                  handTrack.correctR.ToString() + " = " + hand.rotation.eulerAngles.ToString();
+        handTrack.correct.ToString() + " = " + hand.position.ToString() + "(" + Math.Round(handTrack.dist, 3) + ")" + "\n" +
+        handTrack.correctR.ToString() + " = " + hand.rotation.eulerAngles.ToString();
     }
 
     string Visual() {
       string debug = Globals.trial + ": ";
-      if (Globals.vis[0] == 1) {
-        debug += "Offset, ";
-      } else {
+      if (Globals.vis[0] == 0) {
         debug += "In-place, ";
-      }
-      if (Globals.vis[1] == 1) {
-        debug += "Keyframe, ";
       } else {
+        debug += "Offset, ";
+      }
+      if (Globals.vis[1] == 0) {
         debug += "Continuous, ";
+      } else {
+        debug += "Keyframe, ";
       }
       if (Globals.vis[2] == 0) {
         debug += "Unimanuel, ";
