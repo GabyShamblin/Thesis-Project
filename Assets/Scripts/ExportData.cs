@@ -13,11 +13,20 @@ using UnityEngine;
 */
 public class ExportData : MonoBehaviour
 {
-	public HandTrack[] handTracks;
 	private Stats posStats = new Stats();
 	private Stats rotStats = new Stats();
 	private string path = "";
 	private string folderName = "User Data";
+	private HandTrack[] handTracks;
+
+	private int saveMove = 0;
+	private int visOffset = 0;
+	private int visAnim = 0;
+	private int visHands = 0;
+
+	void Start() {
+		handTracks = GetComponent<HandLogic>().hands;
+	}
 
 	public void StartData() {
 		string key = "userNum";
@@ -39,24 +48,37 @@ public class ExportData : MonoBehaviour
 		// https://discussions.unity.com/t/write-data-from-list-to-csv-file/735424/3
 		// https://discussions.unity.com/t/writing-position-data-to-a-csv-file/923012
 
+		saveMove = Globals.move;
+		visOffset = Globals.vis[0];
+		visAnim = Globals.vis[1];
+		visHands = Globals.vis[2];
+
 		string docName = "user" + PlayerPrefs.GetString("userNum") + ".csv";
 		using (StreamWriter writer = new StreamWriter(Path.Combine(path, docName))) {
 			writer.WriteLine(GenerateTitle());
-			int mostFrames = 
-				Globals.userHands[0].Positions.Count > Globals.userHands[1].Positions.Count ? 
-				Globals.userHands[0].Positions.Count : Globals.userHands[1].Positions.Count;
+			int mostHand = 0;
+			int mostFrames = 0;
+			for (int i = 0; i < Globals.userHands.Count; i++) {
+				if (Globals.userHands[i].Positions.Count > mostFrames) {
+					mostFrames = Globals.userHands[i].Positions.Count;
+					mostHand = i;
+				}
+			}
 			float moveAccuracy = 0.0f;
 			float posAccuracy = 0.0f;
 			float rotAccuracy = 0.0f;
+			bool single = false;
 
-			try {
-				string line;
-				// Note: User position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
-				for (int i = 0; i < mostFrames; i++) {
+			string line;
+			int j = 0;
+			// Note: User position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
+			for (int i = 0; i < mostFrames; i++) {
+				try {
 					line = "";
-					for (int j = 0; j < 2; j++) {
+					for (j = 0; j < 2; j++) {
 						if (i >= Globals.userHands[j].Positions.Count) {
 							line += "0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ";
+							single = true;
 						} else {
 							Vector3 pos = Globals.userHands[j].Positions[i];
 							Quaternion rot = Globals.userHands[j].Rotations[i];
@@ -64,122 +86,65 @@ public class ExportData : MonoBehaviour
 							rotAccuracy = GetRotAccuracy(j, i, Globals.angleAllow);
 							moveAccuracy += posAccuracy + rotAccuracy;
 
-							// line += pos.x + ", " + pos.y + ", " + pos.z + ", " + posAccuracy + ", ";
-							// line += rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + ", " + rotAccuracy + ", ";
-							line += pos.x + ", " + pos.y + ", " + pos.z + ", ";
-							line += rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + ", ";
+							line += pos.x + ", " + pos.y + ", " + pos.z + ", " + posAccuracy + ", ";
+							line += rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + ", " + rotAccuracy + ", ";
+							// line += pos.x + ", " + pos.y + ", " + pos.z + ", ";
+							// line += rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + ", ";
 						}
 					}
-					line += Globals.userHands[0].Timestamps[i] + ", " + (moveAccuracy/4);
+
+					// If only one hand has been calculated, the just take the average of the single hand pos and rot
+					if (single) {
+						line += Globals.userHands[mostHand].Timestamps[i] + ", " + (moveAccuracy/2);
+					} else {
+						line += Globals.userHands[mostHand].Timestamps[i] + ", " + (moveAccuracy/4);
+					}
 					moveAccuracy = 0.0f;
+					single = false;
 
 					writer.WriteLine(line);
+				} catch (Exception e) {
+					writer.WriteLine("Error line " + i + "/" + j + ": " + e.ToString());
+					writer.WriteLine("Hand position count: " + Globals.userHands[j].Positions.Count);
 				}
-
-				posStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
-				rotStats.total += Globals.userHands[0].Rotations.Count + Globals.userHands[1].Rotations.Count;
-				// line = posStats.ToString() + ", " + rotStats.ToString();
-				// writer.WriteLine(line);
-			} catch (Exception e) {
-				writer.WriteLine("Error: " + e.ToString());
 			}
+
+			posStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
+			rotStats.total += Globals.userHands[0].Rotations.Count + Globals.userHands[1].Rotations.Count;
+			line = posStats.ToString() + ", " + rotStats.ToString();
+			writer.WriteLine(line);
 		}
 
-	}
-
-	//! Write user data to a text file
-	public void WriteData(string docName = "output.csv") {
-		Debug.Log("Writing data");
-
-		using (StreamWriter writer = new StreamWriter(Path.Combine(path, docName))) {
-			int mostFrames = 
-				Globals.userHands[0].Positions.Count > Globals.userHands[1].Positions.Count ? 
-				Globals.userHands[0].Positions.Count : Globals.userHands[1].Positions.Count;
-
-			try {
-				string line;
-				// Note: User position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
-				for (int i = 0; i < mostFrames; i++) {
-					line = "";
-					for (int j = 0; j < 2; j++) {
-						// TODO: Check if one space is ok for seperation
-						if (i >= Globals.userHands[j].Positions.Count) {
-							line += "0.000000 0.000000 ";
-						} else {
-							// line += GetPosAccuracy(j, i, handTracks[j].distAllowance) + " " + GetRotAccuracy(j, i, handTracks[j].angleAllowance) + " ";
-							line += Globals.userHands[j].Positions[i] + " " + Globals.userHands[j].Rotations[i] + " ";
-						}
-					}
-					line += Globals.userHands[0].Timestamps[i];
-					writer.WriteLine(line);
-				}
-
-				posStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
-				rotStats.total += Globals.userHands[0].Rotations.Count + Globals.userHands[1].Rotations.Count;
-				line = posStats.ToString() + " " + rotStats.ToString();
-				writer.WriteLine(line);
-			} catch (Exception e) {
-				writer.WriteLine("Error: " + e.ToString());
-			}
-			// string line = "";
-			// for (int j = 0; j < Globals.traces[Globals.moveSet][Globals.contSet].Count; j++) {
-			// 	line += Globals.traces[Globals.moveSet][Globals.contSet][j].ToString() + "    ";
-			// }
-
-			// writer.WriteLine(line);
-		}
-
-		float score = (posStats.Average() + rotStats.Average()) / 2;
-		score = (float)Math.Round(score, 2);
-
-		PlayerPrefs.DeleteAll();
-
-		string key = "scoreList";
-		if (PlayerPrefs.HasKey(key)) {
-			PlayerPrefs.SetString(key, (Int32.Parse(PlayerPrefs.GetString(key)) + 1).ToString());
-		} else {
-			// PlayerPrefs.SetString(key, score.ToString());
-			PlayerPrefs.SetString(key, "67, 79, 81, 55, 91, 98");
-		}
-		PlayerPrefs.Save();
-
-		key = "scoreDate";
-		if (PlayerPrefs.HasKey(key)) {
-			PlayerPrefs.SetString(key, PlayerPrefs.GetString(key) + ", " + DateTime.Now.ToString("MM/dd/yy"));
-		} else {
-			// PlayerPrefs.SetString(key, score.ToString());
-			PlayerPrefs.SetString(key, "10/24/24, 11/01/24, 11/12/24, 11/23/24, 12/03/24, 01/15/25");
-		}
-		PlayerPrefs.Save();
-
-		key = "scoreTitle";
-		if (PlayerPrefs.HasKey(key)) {
-			PlayerPrefs.SetString(key, PlayerPrefs.GetString(key) + ", " + gameObject.GetComponent<ImportData>().title);
-		} else {
-			// PlayerPrefs.SetString(key, score.ToString());
-			PlayerPrefs.SetString(key, "Knot Tying E003, Knot Tying D005, Knot Tying E003, Needle Passing F001, Suturing E002, Knot Tying E003");
-		}
-		PlayerPrefs.Save();
-
-		Debug.Log("Score: " + score);
-		Debug.Log("Done writing");
-		Debug.Log("Score list: " + PlayerPrefs.GetString(key));
-		// chart.DisplayScore();
+		// Reset user data so it doesnt cause problems
+		Globals.userHands[0] = new Hand();
+		Globals.userHands[1] = new Hand();
 	}
 
 	// Get accuracy between correct and user position
 	private float GetPosAccuracy(int hand, int frame, float allowance) {
 		// Get correct position
 		// Note: The position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
-		Vector3 original = Globals.traces[Globals.move][hand].Positions[frame];
-		Vector3 check = original; // + new Vector3(0,0,Globals.ghostOffset);
+		Vector3 offset = handTracks[hand].iconLine.offset;
+		Vector3 original; Vector3 check;
+		if (visHands == 1 && hand == 1) {
+			// If mirror bimanuel, correct flip on y axis
+			original = Globals.traces[saveMove][0].Positions[frame];
+			check = new Vector3(
+				(original.x * -1) + offset.x,
+				original.y + offset.y,
+				original.z + offset.z
+			);
+		} else {
+			original = Globals.traces[saveMove][hand].Positions[frame];
+			check = original + offset;
+		}
 
 		// Calculate percent correct
 		float perc = 1 - (Vector3.Distance(check, Globals.userHands[hand].Positions[frame]) / allowance);
 		perc = (float)Math.Round(perc, 2);
 
 		if (perc < 0) {
-			Debug.Log("Frames: " + frame + " " + frame);
+			Debug.Log("Frame: " + frame);
 			Debug.Log("Original: " + original);
 			Debug.Log("Check: " + check);
 			Debug.Log("User: " + Globals.userHands[hand].Positions[frame]);
@@ -204,7 +169,7 @@ public class ExportData : MonoBehaviour
 	// Get accuracy between correct and user rotation
 	private float GetRotAccuracy(int hand, int frame, float allowance) {
 		// Note: The position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
-		Quaternion original = Globals.traces[Globals.move][hand].Rotations[frame];
+		Quaternion original = Globals.traces[saveMove][hand].Rotations[frame];
 		Quaternion user = Globals.userHands[hand].Rotations[frame];
 
 		Quaternion dist = Quaternion.Inverse(user) * original;
@@ -234,24 +199,24 @@ public class ExportData : MonoBehaviour
 	private string GenerateTitle() {
 		// string debug = Globals.trial + ": ";
 		string debug = "";
-    if (Globals.vis[0] == 0) {
+    if (visOffset == 0) {
       debug += "place_";
     } else {
       debug += "offset_";
     }
-    if (Globals.vis[1] == 0) {
+    if (visAnim == 0) {
       debug += "cont_";
     } else {
       debug += "disc_";
     }
-    if (Globals.vis[2] == 0) {
+    if (visHands == 0) {
       debug += "uni_";
-    } else if (Globals.vis[2] == 1) {
+    } else if (visHands == 1) {
       debug += "mir_";
     } else {
       debug += "asyc_";
     }
-    debug += Globals.move + "_" + Globals.moveAttempt;
+    debug += saveMove + "_" + Globals.moveAttempt;
 
 		return debug;
 	}

@@ -28,7 +28,7 @@ public static class Globals
   public static int[] vis = new int[3];
 
   // Total 12 (0-11)
-  public static int trial = 0;
+  public static int trial = -1;
   // Store all remaining trials. Are randomly removed in Controller.Forward.
   public static List<int> leftover = new List<int>();
 

@@ -54,9 +54,8 @@ public class HandTrack : MonoBehaviour
       else { return; }
       timer += Time.deltaTime;
 
-      // +/- is to offset to where the line center is so the line point and hand are on the same coordinate system
-      Vector3 original;
-      Vector3 check;
+      // Calculate the correct and hand positions
+      Vector3 original; Vector3 check;
       if (Globals.vis[2] == 1 && handIndex == 1) {
         // If mirror bimanuel, correct flip on y axis
         original = Globals.traces[Globals.move][0].Positions[currFrame];
@@ -101,8 +100,8 @@ public class HandTrack : MonoBehaviour
           // Save hand position & rotation for replay
           // TODO: Make sure local rotation is correct and not just rotation
           if (Globals.vis[0] == 0) {
-            Globals.userHands[handIndex].Positions.Add(this.transform.localPosition);
-            Globals.userHands[handIndex].Rotations.Add(this.transform.localRotation);
+            Globals.userHands[handIndex].Positions.Add(this.transform.position);
+            Globals.userHands[handIndex].Rotations.Add(this.transform.rotation);
             Globals.userHands[handIndex].Timestamps.Add(timer);
           } else {
             Globals.userHands[handIndex].Positions.Add(ghostHands.sceneGhost.transform.position);
@@ -111,19 +110,22 @@ public class HandTrack : MonoBehaviour
           }
 
           
-          // Turn off current icon (if multiple traces)
+          // Turn off current icon (if continuous mode)
           if (Globals.vis[1] == 0) {
             iconLine.UpdateLine(currFrame, false);
           }
           
           currFrame++;
           
-          // Show icon for next frame
+          // Show icon for next frame (if keyframe mode)
           if (Globals.vis[1] == 1) {
             iconLine.UpdateLine(currFrame);
           }
         }
       }
+    } else {
+      // Reset timer at start of new movement
+      timer = 0f;
     }
   }
 
@@ -131,5 +133,6 @@ public class HandTrack : MonoBehaviour
   public void ResetHand() {
     currFrame = 0;
     Globals.currFrame = 0;
+    timer = 0;
   }
 }

@@ -74,9 +74,10 @@ public class Controller : MonoBehaviour
 
   void UpdateVis() {
     // Randomly get next trial number
-    int index = 7; //Random.Range(0, Globals.leftover.Count);
-    Globals.trial = Globals.leftover[index];
-    Globals.leftover.RemoveAt(index);
+    // int index = 0; //Random.Range(0, Globals.leftover.Count);
+    // Globals.trial = Globals.leftover[index];
+    // Globals.leftover.RemoveAt(index);
+    Globals.trial++;
     Debug.Log("Controller: Next visualization " + Globals.trial);
 
     // First half of trials have no offset
@@ -114,15 +115,11 @@ public class Controller : MonoBehaviour
     Globals.moveAttempt = 0;
   }
 
-  void Update() 
-  {
+  void Update() {
     if (Globals.paused) {
       if (Input.GetKeyDown("up")) {
         StartCoroutine(PlayMovement());
       }
-      // else if (Input.GetKeyDown("down")) {
-      //   lineLogic.StartLines();
-      // }
 
       if (Input.GetKeyDown("right")) {
         Forward();

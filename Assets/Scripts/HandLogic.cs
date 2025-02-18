@@ -41,7 +41,7 @@ public class HandLogic : MonoBehaviour
     Globals.distAllow = distanceAllowance;
     Globals.angleAllow = angleAllowance;
 
-    Globals.userHands = new List<Hand>(2);
+    Globals.userHands = new List<Hand>();
     Globals.userHands.Add(new Hand());
     Globals.userHands.Add(new Hand());
 
@@ -62,9 +62,11 @@ public class HandLogic : MonoBehaviour
   void Update() {
     if (Globals.start && Globals.paused) {
       // If the arms are out of sync, fail and restart gesture once finished
-      if (Math.Abs(hands[0].currFrame - hands[1].currFrame) > frameAllowance && !fail) {
-        fail = true;
-        Debug.Log("Fail gesture: " + Math.Abs(hands[0].currFrame - hands[1].currFrame) + " > " + frameAllowance);
+      if (Globals.vis[2] != 0) {
+        if (Math.Abs(hands[0].currFrame - hands[1].currFrame) > frameAllowance && !fail) {
+          fail = true;
+          Debug.Log("Fail gesture: " + Math.Abs(hands[0].currFrame - hands[1].currFrame) + " > " + frameAllowance);
+        }
       }
 
       for (int i = 0; i < hands.Length; i++) {

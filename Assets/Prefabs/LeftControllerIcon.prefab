@@ -374,7 +374,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controllerRender: {fileID: 7427191958825510790}
   color1: {r: 0.7921569, g: 0.20784314, b: 0.011764706, a: 1}
-  color2: {r: 1, g: 0.6135118, b: 0, a: 0.21568628}
+  color2: {r: 1, g: 0.6135118, b: 0, a: 0.039215688}
 --- !u!1 &4466586743247955147
 GameObject:
   m_ObjectHideFlags: 0
