@@ -103,46 +103,6 @@ public class LineLogic : MonoBehaviour
 		}
   }
 
-	//! Save the user's movements. Triggered by forward.
-	public void SaveHands(int currGest) {
-		// Go through all hand movements
-		string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-		string docName = "output.txt";
-
-		using (StreamWriter writer = File.AppendText(Path.Combine(path, docName))) {
-			int pos = 0;
-			string line = "";
-			while (pos < Globals.userHands[0].Positions.Count) {
-				for (int i = 0; i < 2; i++) {
-					line += Globals.userHands[i].Positions[pos] + " " + Globals.userHands[i].Rotations[pos] + " ";
-					pos++;
-				}
-				line += Globals.userHands[0].Timestamps[pos];
-				writer.WriteLine(line);
-			}
-		}
-	}
-	// public void SaveHands(int currGest) {
-	// 	// Go through all hand movements
-	// 	for (int i = 0; i < Globals.hands.Count; i++) {
-	// 		int pos = 0;
-	// 		for (int j = 0; j < Globals.traces[i][currGest].Count; j++) {
-	// 			try {
-	// 				if (pos >= Globals.hands[i][currGest].Count) { break; }
-	// 				// Globals.hands[i].UserInfo[j].Position = Globals.hands[i].Positions[pos];
-	// 				// Globals.hands[i].UserInfo[j].Rotation = Globals.hands[i].Rotations[pos];
-	// 				Globals.userHands[i].Add(new Hand(Globals.traces[i][currGest][pos].Position, Globals.traces[i][currGest][pos].Rotation));
-	// 				pos++;
-	// 			} catch (Exception e) {
-	// 				Debug.Log(e.ToString());
-	// 				Debug.Log("i: " + i + " < " + Globals.traces.Count);
-	// 				Debug.Log("j: " + j + " < " + Globals.userHands[i].Count);
-	// 				break;
-	// 			}
-	// 		}
-	// 	}
-	// }
-
 	//! Call reset line functions for all lines. Triggered by forward and rewind.
 	public void ResetLines() {
 		foreach (LineDraw line in lines) {

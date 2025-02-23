@@ -30,9 +30,9 @@ public class GhostHands : MonoBehaviour
     if (sceneGhost != null) {
       Destroy(sceneGhost);
     }
+    Debug.Log("New ghost hands");
 
     if (Globals.vis[0] == 1 && Globals.ghostOffset != 0) {
-     
       // Create ghost hands directly in front of where the controllers are facing
       sceneGhost = Instantiate(ghost, new Vector3(0,0,Globals.ghostOffset) + transform.position, transform.rotation, parent);
     }
@@ -41,17 +41,10 @@ public class GhostHands : MonoBehaviour
   void Update()
   {
     if (Globals.vis[0] == 1 && Globals.start) {
-      if (!spawnedHands) {
-        // Figure out how to stabilize hand 
-        // this.transform.rotation = Quaternion.identity
-        parent.rotation = Quaternion.Euler(0, parent.rotation.eulerAngles.y, 0);
-        CreateGhostHands();
-        spawnedHands = true;
-      } else {
-        // Make ghost hands follow hand rotation/position
-        sceneGhost.transform.rotation = transform.rotation;
-        sceneGhost.transform.position = new Vector3(0,0,Globals.ghostOffset) + transform.position;
-      }
+      // Make ghost hands follow hand rotation/position
+      Debug.Log("Move ghosty hands");
+      sceneGhost.transform.rotation = transform.rotation;
+      sceneGhost.transform.position = transform.position + new Vector3(0,0,Globals.ghostOffset);
     }
   }
 }

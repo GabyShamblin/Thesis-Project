@@ -46,7 +46,6 @@ public class ImportData : MonoBehaviour
     Globals.traces[movement].Add(new Hand());
 
     string[] lines = data.Split("\n");
-    Debug.Log("Lines length: " + lines.Length);
 
     for (int i = 0; i < lines.Length; i++) {
       string line = lines[i].Trim();

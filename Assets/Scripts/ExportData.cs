@@ -19,6 +19,8 @@ public class ExportData : MonoBehaviour
 	private string folderName = "User Data";
 	private HandTrack[] handTracks;
 
+	private string docName;
+	private string title;
 	private int saveMove = 0;
 	private int visOffset = 0;
 	private int visAnim = 0;
@@ -37,13 +39,12 @@ public class ExportData : MonoBehaviour
 		}
 		PlayerPrefs.Save();
 
+		docName = "user" + PlayerPrefs.GetString("userNum") + ".csv";
 		path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\" + folderName;
-		// Debug.Log("Successfully created folder");
 	}
 
 	public void SaveData() {
 		Debug.Log("Saving data...");
-		// var content = ToCSV();
 		// WriteLine: thing, new block, another block ->
 		// https://discussions.unity.com/t/write-data-from-list-to-csv-file/735424/3
 		// https://discussions.unity.com/t/writing-position-data-to-a-csv-file/923012
@@ -52,10 +53,25 @@ public class ExportData : MonoBehaviour
 		visOffset = Globals.vis[0];
 		visAnim = Globals.vis[1];
 		visHands = Globals.vis[2];
+		title = GenerateTitle();
 
-		string docName = "user" + PlayerPrefs.GetString("userNum") + ".csv";
-		using (StreamWriter writer = new StreamWriter(Path.Combine(path, docName))) {
-			writer.WriteLine(GenerateTitle());
+		bool exists = true;
+		// If the needed folder doesn't exist, create it
+		if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
+		if (!File.Exists(Path.Combine(path, docName))) { exists = false; }
+
+		using (StreamWriter writer = new StreamWriter(Path.Combine(path, docName), true)) {
+			if (!exists) {
+				// If this is the first time seeing the file, create the column names
+				writer.WriteLine(
+					"trial, l_pos_x, l_pos_y, l_pos_z, l_pos_score, " +
+					"l_rot_x, l_rot_y, l_rot_z, l_rot_w, l_rot_score, " +
+					"r_pos_x, r_pos_y, r_pos_z, r_pos_score, " +
+					"r_rot_x, r_rot_y, r_rot_z, r_rot_w, r_rot_score, " +
+					"timestamp, score");
+				Debug.Log("Title written");
+			}
+
 			int mostHand = 0;
 			int mostFrames = 0;
 			for (int i = 0; i < Globals.userHands.Count; i++) {
@@ -74,7 +90,8 @@ public class ExportData : MonoBehaviour
 			// Note: User position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
 			for (int i = 0; i < mostFrames; i++) {
 				try {
-					line = "";
+					// Add the title to every row to make it easy to sort and analyze later
+					line = title + ", ";
 					for (j = 0; j < 2; j++) {
 						if (i >= Globals.userHands[j].Positions.Count) {
 							line += "0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ";
@@ -88,8 +105,6 @@ public class ExportData : MonoBehaviour
 
 							line += pos.x + ", " + pos.y + ", " + pos.z + ", " + posAccuracy + ", ";
 							line += rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + ", " + rotAccuracy + ", ";
-							// line += pos.x + ", " + pos.y + ", " + pos.z + ", ";
-							// line += rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + ", ";
 						}
 					}
 
@@ -112,6 +127,7 @@ public class ExportData : MonoBehaviour
 			posStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
 			rotStats.total += Globals.userHands[0].Rotations.Count + Globals.userHands[1].Rotations.Count;
 			line = posStats.ToString() + ", " + rotStats.ToString();
+			Debug.Log("The end?");
 			writer.WriteLine(line);
 		}
 
@@ -122,20 +138,16 @@ public class ExportData : MonoBehaviour
 
 	// Get accuracy between correct and user position
 	private float GetPosAccuracy(int hand, int frame, float allowance) {
-		// Get correct position
 		// Note: The position/rotation needs to be offset by the start of the first gesture because nothing before that is shown to the user or captured
-		Vector3 offset = handTracks[hand].iconLine.offset;
-		Vector3 original; Vector3 check;
+		Vector3 original; Vector3 offset; Vector3 check;
 		if (visHands == 1 && hand == 1) {
 			// If mirror bimanuel, correct flip on y axis
 			original = Globals.traces[saveMove][0].Positions[frame];
-			check = new Vector3(
-				(original.x * -1) + offset.x,
-				original.y + offset.y,
-				original.z + offset.z
-			);
+			offset = handTracks[hand].iconLines[1].offset;
+			check = new Vector3(-original.x, original.y, original.z) + offset;
 		} else {
 			original = Globals.traces[saveMove][hand].Positions[frame];
+			offset = handTracks[hand].iconLines[0].offset;
 			check = original + offset;
 		}
 
@@ -207,7 +219,7 @@ public class ExportData : MonoBehaviour
     if (visAnim == 0) {
       debug += "cont_";
     } else {
-      debug += "disc_";
+      debug += "key_";
     }
     if (visHands == 0) {
       debug += "uni_";
@@ -241,10 +253,6 @@ public class Stats
 	}
 
 	public override string ToString() {
-		return (perc/total) + " " + min + " " + max;
+		return (perc/total) + ", " + min + ", " + max;
 	}
-	// float CalcDiff(Vector3 v1, Vector3 v2) {
-	// 	Quaternion angleCheck = Quaternion.Inverse(transform.rotation) * Globals.hands[handIndex].Info[currFrame].Rotation
-	// 	return (Math.Abs(v1 - v2)) / ((v1 + v2) / 2);
-	// }
 }

@@ -30,7 +30,7 @@ public class HandLogic : MonoBehaviour
   private Controller control;
 
   //! Whether the gesture has been finished
-  private bool cont = false;
+  private bool cont = true;
   //! Whether the gesture has been failed
   private bool fail = false;
 
@@ -61,28 +61,34 @@ public class HandLogic : MonoBehaviour
 
   void Update() {
     if (Globals.start && Globals.paused) {
-      // If the arms are out of sync, fail and restart gesture once finished
-      if (Globals.vis[2] != 0) {
+      if (Globals.vis[2] == 0) {
+        if (hands[1].currFrame < Globals.traces[Globals.move][1].Positions.Count-1) {
+          cont = false;
+        } 
+
+      } else {
+        // If the arms are out of sync, fail and restart gesture once finished
         if (Math.Abs(hands[0].currFrame - hands[1].currFrame) > frameAllowance && !fail) {
           fail = true;
-          Debug.Log("Fail gesture: " + Math.Abs(hands[0].currFrame - hands[1].currFrame) + " > " + frameAllowance);
+          Debug.Log("Fail gesture: " + hands[0].currFrame + "-" + hands[1].currFrame + "=" + Math.Abs(hands[0].currFrame - hands[1].currFrame) + " > " + frameAllowance);
         }
-      }
 
-      for (int i = 0; i < hands.Length; i++) {
         // Check if all arms are finished
-        if (hands[i].currFrame >= Globals.traces[Globals.move][i].Positions.Count-1) {
-          cont = true;
-          Debug.Log(i + ": " + hands[i].currFrame + " >= " + (Globals.traces[Globals.move][i].Positions.Count-1));
-        } 
+        for (int i = 0; i < hands.Length; i++) {
+          if (hands[i].currFrame < Globals.traces[Globals.move][i].Positions.Count-1) {
+            cont = false;
+            // Debug.Log(i + ": " + hands[i].currFrame + " >= " + (Globals.traces[Globals.move][i].Positions.Count-1));
+          } 
+        }
       }
 
       // If got to the end of the gesture, continue to next gesture (or restart)
       if (cont) {
         if (fail) { StartCoroutine(control.Rewind()); }
         else { control.Forward(); }
-        cont = false;
         fail = false;
+      } else {
+        cont = true;
       }
     }
   }

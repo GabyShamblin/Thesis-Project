@@ -590,5 +590,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controllerRender: {fileID: 2563166288504128201}
-  color1: {r: 0, g: 0, b: 0.5019608, a: 1}
-  color2: {r: 0, g: 1, b: 1, a: 0.039215688}
+  colors:
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 1, g: 0.5019608, b: 0, a: 0.83137256}
+  - {r: 1, g: 1, b: 0, a: 0.6627451}
+  - {r: 0, g: 1, b: 0, a: 0.49411765}
+  - {r: 0, g: 0, b: 1, a: 0.3254902}
+  - {r: 0.5019608, g: 0, b: 1, a: 0.15686275}

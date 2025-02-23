@@ -16,9 +16,9 @@ public class HandTrack : MonoBehaviour
 
   //! [Input] Respective icon line script
   [Tooltip("The respective icon line draw script")]
-  public LineDraw iconLine;
+  public LineDraw[] iconLines;
 
-  // public LineDraw mirrorIconLine;
+  // public Transform debugCont;
 
   public ExportData exportData;
 
@@ -31,12 +31,13 @@ public class HandTrack : MonoBehaviour
   [HideInInspector] public Vector3 correct;
   [HideInInspector] public Vector3 correctR;
   [HideInInspector] public float dist;
+  [HideInInspector] public float angleDist;
 
   void Start()
   {
     ghostHands = this.GetComponent<GhostHands>();
     
-    if (iconLine == null) {
+    if (iconLines.Length == 0) {
       Debug.LogError("Icon line is not set for hand " + handIndex);
     }
   }
@@ -45,28 +46,22 @@ public class HandTrack : MonoBehaviour
     // Check if initial load is done and video is paused
     if (Globals.start && Globals.paused) {
       // Set current frame to start if not correct
-      if (currFrame < Globals.traces[Globals.move][handIndex].Positions.Count) {
-        // currFrame = 0;
+      if (currFrame > Globals.traces[Globals.move][handIndex].Positions.Count) {
+        currFrame = 0;
         if (Globals.vis[1] == 1) {
-          iconLine.UpdateLine(currFrame);
+          iconLines[0].UpdateLine(0);
         }
       }
-      else { return; }
       timer += Time.deltaTime;
 
       // Calculate the correct and hand positions
-      Vector3 original; Vector3 check;
+      Vector3 check;
       if (Globals.vis[2] == 1 && handIndex == 1) {
         // If mirror bimanuel, correct flip on y axis
-        original = Globals.traces[Globals.move][0].Positions[currFrame];
-        check = new Vector3(
-          (original.x * -1) + iconLine.offset.x,
-          original.y + iconLine.offset.y,
-          original.z + iconLine.offset.z
-        );
+        Vector3 original = Globals.traces[Globals.move][0].Positions[currFrame];
+        check = new Vector3(-original.x, original.y, original.z) + iconLines[1].offset;
       } else {
-        original = Globals.traces[Globals.move][handIndex].Positions[currFrame];
-        check = original + iconLine.offset;
+        check = Globals.traces[Globals.move][handIndex].Positions[currFrame] + iconLines[0].offset;
       }
       correct = check;
 
@@ -78,27 +73,46 @@ public class HandTrack : MonoBehaviour
       }
       
       if (dist <= Globals.distAllow) {
-        Quaternion angleCheck;
-        if (Globals.vis[0] == 0) {
-          angleCheck = Quaternion.Inverse(this.transform.rotation) * Globals.traces[Globals.move][handIndex].Rotations[currFrame];
+        Quaternion correctAngle;
+        if (Globals.vis[2] == 1 && handIndex == 1) {
+          correctAngle = Globals.traces[Globals.move][0].Rotations[currFrame];
+          Vector3 correctEuler = correctAngle.eulerAngles;
+          correctAngle = Quaternion.Euler(correctEuler.x, -correctEuler.y, -correctEuler.z);
+          // debugCont.position = correct;
+          // debugCont.rotation = correctAngle;
         } else {
-          angleCheck = Quaternion.Inverse(ghostHands.sceneGhost.transform.rotation) * Globals.traces[Globals.move][handIndex].Rotations[currFrame];
+          correctAngle = Globals.traces[Globals.move][handIndex].Rotations[currFrame];
         }
         // Use euler angles to make comparison easier
-        Vector3 angleDist = angleCheck.eulerAngles;
-        correctR = angleDist;
+        correctR = correctAngle.eulerAngles;
 
-        // Correct for angles that end up over 360
-        if (angleDist.x > 180) { angleDist.x -= 360; }
-        if (angleDist.y > 180) { angleDist.y -= 360; }
-        if (angleDist.z > 180) { angleDist.z -= 360; }
+        if (Globals.vis[0] == 0) {
+          angleDist = Quaternion.Angle(this.transform.rotation, correctAngle);
+        } else {
+          angleDist = Quaternion.Angle(ghostHands.sceneGhost.transform.rotation, correctAngle);
+        }
 
-        if (Math.Abs(angleDist.x) <= Globals.angleAllow && 
-            Math.Abs(angleDist.y) <= Globals.angleAllow && 
-            Math.Abs(angleDist.z) <= Globals.angleAllow) 
+        if (angleDist <= Globals.angleAllow) 
+        // Quaternion angleCheck;
+        // if (Globals.vis[0] == 0) {
+        //   angleCheck = Quaternion.Inverse(this.transform.rotation) * Globals.traces[Globals.move][handIndex].Rotations[currFrame];
+        // } else {
+        //   angleCheck = Quaternion.Inverse(ghostHands.sceneGhost.transform.rotation) * Globals.traces[Globals.move][handIndex].Rotations[currFrame];
+        // }
+        // // Use euler angles to make comparison easier
+        // correctR = angleCheck.eulerAngles;
+        // angleDist = angleCheck.eulerAngles;
+
+        // // Correct for angles that end up over 360
+        // if (angleDist.x > 180) { angleDist.x -= 360; }
+        // if (angleDist.y > 180) { angleDist.y -= 360; }
+        // if (angleDist.z > 180) { angleDist.z -= 360; }
+
+        // if (Math.Abs(angleDist.x) <= Globals.angleAllow && 
+        //     Math.Abs(angleDist.y) <= Globals.angleAllow && 
+        //     Math.Abs(angleDist.z) <= Globals.angleAllow) 
         {
           // Save hand position & rotation for replay
-          // TODO: Make sure local rotation is correct and not just rotation
           if (Globals.vis[0] == 0) {
             Globals.userHands[handIndex].Positions.Add(this.transform.position);
             Globals.userHands[handIndex].Rotations.Add(this.transform.rotation);
@@ -108,18 +122,25 @@ public class HandTrack : MonoBehaviour
             Globals.userHands[handIndex].Rotations.Add(ghostHands.sceneGhost.transform.rotation);
             Globals.userHands[handIndex].Timestamps.Add(timer);
           }
-
-          
+                   
           // Turn off current icon (if continuous mode)
           if (Globals.vis[1] == 0) {
-            iconLine.UpdateLine(currFrame, false);
+            if (Globals.vis[2] == 1 && handIndex == 1) {
+              iconLines[1].UpdateLine(currFrame, false);
+            } else {
+              iconLines[0].UpdateLine(currFrame, false);
+            }
           }
           
           currFrame++;
           
           // Show icon for next frame (if keyframe mode)
           if (Globals.vis[1] == 1) {
-            iconLine.UpdateLine(currFrame);
+            if (Globals.vis[2] == 1 && handIndex == 1) {
+              iconLines[1].UpdateLine(currFrame);
+            } else {
+              iconLines[0].UpdateLine(currFrame);
+            }
           }
         }
       }
@@ -131,8 +152,8 @@ public class HandTrack : MonoBehaviour
 
   //! Move hand back to the start of the current gesture. Triggered by rewind.
   public void ResetHand() {
-    currFrame = 0;
     Globals.currFrame = 0;
+    currFrame = 0;
     timer = 0;
   }
 }

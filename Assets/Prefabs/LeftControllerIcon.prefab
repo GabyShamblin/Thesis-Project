@@ -373,8 +373,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controllerRender: {fileID: 7427191958825510790}
-  color1: {r: 0.7921569, g: 0.20784314, b: 0.011764706, a: 1}
-  color2: {r: 1, g: 0.6135118, b: 0, a: 0.039215688}
+  colors:
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 1, g: 0.5019608, b: 0, a: 0.83137256}
+  - {r: 1, g: 1, b: 0, a: 0.6627451}
+  - {r: 0, g: 1, b: 0, a: 0.49411765}
+  - {r: 0, g: 0, b: 1, a: 0.3254902}
+  - {r: 0.5019608, g: 0, b: 1, a: 0.15686275}
 --- !u!1 &4466586743247955147
 GameObject:
   m_ObjectHideFlags: 0

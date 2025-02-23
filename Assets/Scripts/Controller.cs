@@ -9,11 +9,13 @@ public class Controller : MonoBehaviour
   [SerializeField] private AudioSource audioFeedback;
   [SerializeField] private AudioClip successAudio;
   [SerializeField] private AudioClip failAudio;
+  [SerializeField] private GameObject[] numbers;
 
   //! Line logic
   private LineLogic lineLogic;
   //! Export data
   private ExportData exportData;
+  private bool act = false;
 
 
 
@@ -31,6 +33,7 @@ public class Controller : MonoBehaviour
     lineLogic = this.GetComponent<LineLogic>();
     lineLogic.StartLines();
     Globals.start = true;
+    Globals.paused = false;
     UpdateVis();
     
     exportData = this.GetComponent<ExportData>();
@@ -41,15 +44,15 @@ public class Controller : MonoBehaviour
   private IEnumerator PlayMovement() {
     if (true) {
       string debug = Globals.trial + ": ";
-      if (Globals.vis[0] == 1) {
-        debug += "Offset, ";
-      } else {
+      if (Globals.vis[0] == 0) {
         debug += "In-place, ";
-      }
-      if (Globals.vis[1] == 1) {
-        debug += "Keyframe, ";
       } else {
+        debug += "Offset, ";
+      }
+      if (Globals.vis[1] == 0) {
         debug += "Continuous, ";
+      } else {
+        debug += "Keyframe, ";
       }
       if (Globals.vis[2] == 0) {
         debug += "Unimanuel, ";
@@ -58,14 +61,14 @@ public class Controller : MonoBehaviour
       } else {
         debug += "Async Bimanuel, ";
       }
-      debug += "" + Globals.move;
+      debug += "Move " + Globals.move;
       Debug.Log(debug);
     }
 
     // Animate movement
     for (int frame = 0; frame < Globals.traces[Globals.move][0].Positions.Count; frame++) {
       lineLogic.UpdateLines(frame);
-      yield return new WaitForSeconds(0.01f);
+      yield return new WaitForSeconds(0.025f);
     }
     // Reset back to first frame for user to follow
     lineLogic.UpdateLines(0);
@@ -73,10 +76,11 @@ public class Controller : MonoBehaviour
   }
 
   void UpdateVis() {
+    int index = 5;
     // Randomly get next trial number
-    // int index = 0; //Random.Range(0, Globals.leftover.Count);
-    // Globals.trial = Globals.leftover[index];
-    // Globals.leftover.RemoveAt(index);
+    // int index = Random.Range(0, Globals.leftover.Count);
+    Globals.trial = Globals.leftover[index];
+    Globals.leftover.RemoveAt(index);
     Globals.trial++;
     Debug.Log("Controller: Next visualization " + Globals.trial);
 
@@ -127,6 +131,18 @@ public class Controller : MonoBehaviour
       else if (Input.GetKeyDown("left")) {
         StartCoroutine(Rewind());
       }
+
+      // Click Y to trigger a rewind
+      if (OVRInput.GetDown(OVRInput.Button.Four)) {
+        StartCoroutine(Rewind());
+      }
+
+      if (Input.GetKeyDown("l")) {
+        act = !act;
+        foreach (GameObject num in numbers) {
+          num.SetActive(act);
+        }
+      }
     }
   }
 
@@ -144,12 +160,13 @@ public class Controller : MonoBehaviour
       return;
     }
 
-    if (Globals.move < 2) {
-      Debug.Log("Controller: Next movement");
-      Globals.move++;
-    } else {
-      UpdateVis();
-    }
+    // if (Globals.move < 2) {
+    //   Debug.Log("Controller: Next movement");
+    //   Globals.move++;
+    // } else {
+    //   UpdateVis();
+    // }
+    UpdateVis();
 
     StartCoroutine(PlayMovement());
   }
@@ -158,9 +175,11 @@ public class Controller : MonoBehaviour
   public IEnumerator Rewind() {
     Debug.Log("Rewind");
     audioFeedback.PlayOneShot(failAudio);
-    Globals.start = false;
+    Globals.paused = false;
     Globals.moveAttempt++;
     lineLogic.ResetLines();
+    Globals.userHands[0] = new Hand();
+    Globals.userHands[1] = new Hand();
     yield return StartCoroutine(lineLogic.ReplayHands());
 
     StartCoroutine(PlayMovement());
