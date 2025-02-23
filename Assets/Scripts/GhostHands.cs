@@ -30,7 +30,6 @@ public class GhostHands : MonoBehaviour
     if (sceneGhost != null) {
       Destroy(sceneGhost);
     }
-    Debug.Log("New ghost hands");
 
     if (Globals.vis[0] == 1 && Globals.ghostOffset != 0) {
       // Create ghost hands directly in front of where the controllers are facing
@@ -38,11 +37,14 @@ public class GhostHands : MonoBehaviour
     }
   }
 
+  public void DestroyGhostHands() {
+    Destroy(sceneGhost);
+  }
+
   void Update()
   {
     if (Globals.vis[0] == 1 && Globals.start) {
       // Make ghost hands follow hand rotation/position
-      Debug.Log("Move ghosty hands");
       sceneGhost.transform.rotation = transform.rotation;
       sceneGhost.transform.position = transform.position + new Vector3(0,0,Globals.ghostOffset);
     }

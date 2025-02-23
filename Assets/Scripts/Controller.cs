@@ -76,16 +76,16 @@ public class Controller : MonoBehaviour
   }
 
   void UpdateVis() {
-    int index = 5;
+    if (Globals.leftover.Count <= 0) { return; }
+
     // Randomly get next trial number
-    // int index = Random.Range(0, Globals.leftover.Count);
+    int index = Random.Range(0, Globals.leftover.Count);
     Globals.trial = Globals.leftover[index];
     Globals.leftover.RemoveAt(index);
-    Globals.trial++;
     Debug.Log("Controller: Next visualization " + Globals.trial);
 
-    // First half of trials have no offset
-    // Second half are offset
+    // Trials 0-5 are not offset
+    // Trials 6-11 are offset
     if (Globals.trial < 6) {
       Globals.vis[0] = 0;
     } else {
@@ -100,9 +100,9 @@ public class Controller : MonoBehaviour
       Globals.vis[1] = 1;
     }
 
-    // Trials 2,5,8,11 are async bimanuel
-    // Trials 1,4,7,10 are sync bimanuel
     // Trials 0,3,6,9 are unimanuel
+    // Trials 1,4,7,10 are sync bimanuel
+    // Trials 2,5,8,11 are async bimanuel
     if (Globals.trial % 3 == 0) {
       Globals.vis[2] = 0;
     }
@@ -160,13 +160,12 @@ public class Controller : MonoBehaviour
       return;
     }
 
-    // if (Globals.move < 2) {
-    //   Debug.Log("Controller: Next movement");
-    //   Globals.move++;
-    // } else {
-    //   UpdateVis();
-    // }
-    UpdateVis();
+    if (Globals.move < 2) {
+      Debug.Log("Controller: Next movement");
+      Globals.move++;
+    } else {
+      UpdateVis();
+    }
 
     StartCoroutine(PlayMovement());
   }

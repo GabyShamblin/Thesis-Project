@@ -92,8 +92,6 @@ public class LineDraw : MonoBehaviour
   //! Set icons active are line is drawn. Triggered by hand track.
   public void UpdateLine(int frame, bool toggle = true) {
     if (frame < icons[Globals.move].Length && icons[Globals.move][frame] != null) {
-      Debug.Log("Update frame " + frame);
-
       if (Globals.vis[1] == 1) {
         // If keyframe animation, turn off previous frame, then turn on current frame
         if (prevFrame < icons[Globals.move].Length && icons[Globals.move][prevFrame] != null) {
@@ -121,17 +119,18 @@ public class LineDraw : MonoBehaviour
 
   //! Update the visualization of this line
   public void UpdateVis() {
-    if (Globals.vis[0] == 1) {
-      if (!offsetMode) {
-        transform.position = transform.position + new Vector3(0,0,Globals.ghostOffset);
-        offsetMode = true;
-        ghostHand.CreateGhostHands();
-      }
-    } else {
+    if (Globals.vis[0] == 1 && !offsetMode) {
+      transform.position = transform.position + new Vector3(0,0,Globals.ghostOffset);
+      offset = transform.position;
+      ghostHand.CreateGhostHands();
+      offsetMode = true;
+    } 
+    else if (Globals.vis[0] == 0 && offsetMode) {
       transform.position = transform.position - new Vector3(0,0,Globals.ghostOffset);
+      offset = transform.position;
+      ghostHand.DestroyGhostHands();
       offsetMode = false;
     }
-    offset = transform.position;
 
     // Manuel = Right
     // Mirror = Left, Mirror Right

@@ -16,9 +16,10 @@ public class zzzDebug : MonoBehaviour
     }
 
     void Update() {
-      text.text = Visual() + "\n" +
-        handTrack.correct.ToString() + " = " + hand.position.ToString() + "(" + Math.Round(handTrack.dist, 3) + ")" + "\n" +
-        handTrack.correctR.ToString() + " = " + hand.rotation.eulerAngles.ToString() + "(" + handTrack.angleDist + ")";
+      text.text = Visual();
+        // + "\n" +
+        // handTrack.correct.ToString() + " = " + hand.position.ToString() + "(" + Math.Round(handTrack.dist, 3) + ")" + "\n" +
+        // handTrack.correctR.ToString() + " = " + hand.rotation.eulerAngles.ToString() + "(" + handTrack.angleDist + ")";
     }
 
     string Visual() {

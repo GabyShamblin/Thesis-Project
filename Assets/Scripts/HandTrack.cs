@@ -93,24 +93,6 @@ public class HandTrack : MonoBehaviour
         }
 
         if (angleDist <= Globals.angleAllow) 
-        // Quaternion angleCheck;
-        // if (Globals.vis[0] == 0) {
-        //   angleCheck = Quaternion.Inverse(this.transform.rotation) * Globals.traces[Globals.move][handIndex].Rotations[currFrame];
-        // } else {
-        //   angleCheck = Quaternion.Inverse(ghostHands.sceneGhost.transform.rotation) * Globals.traces[Globals.move][handIndex].Rotations[currFrame];
-        // }
-        // // Use euler angles to make comparison easier
-        // correctR = angleCheck.eulerAngles;
-        // angleDist = angleCheck.eulerAngles;
-
-        // // Correct for angles that end up over 360
-        // if (angleDist.x > 180) { angleDist.x -= 360; }
-        // if (angleDist.y > 180) { angleDist.y -= 360; }
-        // if (angleDist.z > 180) { angleDist.z -= 360; }
-
-        // if (Math.Abs(angleDist.x) <= Globals.angleAllow && 
-        //     Math.Abs(angleDist.y) <= Globals.angleAllow && 
-        //     Math.Abs(angleDist.z) <= Globals.angleAllow) 
         {
           // Save hand position & rotation for replay
           if (Globals.vis[0] == 0) {
