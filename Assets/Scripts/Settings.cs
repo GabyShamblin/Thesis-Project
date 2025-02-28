@@ -17,8 +17,14 @@ using UnityEngine;
 */
 public static class Globals
 {
+  // Data imported and all systems ready
   public static bool start = false;
-  public static bool paused = true;
+  // Allow user to follow movements
+  public static bool paused = false;
+  // Wait for user to place hands in start position until pausing
+  public static bool waiting = false;
+  // Wait for start position to start animation
+  public static bool waitAnimation = true;
 
 
 
@@ -41,6 +47,8 @@ public static class Globals
   public static int move = 0;
   //! How many attempts was made for a movement
   public static int moveAttempt = 0;
+  //! How many times the user manually rewound
+  public static int userResets = 0;
 
   //! How much to offset the controller
   public static float ghostOffset = 0.5f;

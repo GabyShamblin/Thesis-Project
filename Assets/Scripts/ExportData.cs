@@ -127,7 +127,6 @@ public class ExportData : MonoBehaviour
 			posStats.total += Globals.userHands[0].Positions.Count + Globals.userHands[1].Positions.Count;
 			rotStats.total += Globals.userHands[0].Rotations.Count + Globals.userHands[1].Rotations.Count;
 			line = posStats.ToString() + ", " + rotStats.ToString();
-			Debug.Log("The end?");
 			writer.WriteLine(line);
 		}
 
@@ -209,8 +208,7 @@ public class ExportData : MonoBehaviour
 	}
 
 	private string GenerateTitle() {
-		// string debug = Globals.trial + ": ";
-		string debug = "";
+		string debug = Globals.trial + ": ";
     if (visOffset == 0) {
       debug += "place_";
     } else {
@@ -228,7 +226,7 @@ public class ExportData : MonoBehaviour
     } else {
       debug += "asyc_";
     }
-    debug += saveMove + "_" + Globals.moveAttempt;
+    debug += saveMove + "_" + Globals.moveAttempt + "_" + Globals.userResets;
 
 		return debug;
 	}

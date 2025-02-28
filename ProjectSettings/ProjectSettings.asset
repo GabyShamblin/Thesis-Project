@@ -133,7 +133,7 @@ PlayerSettings:
   vulkanEnableLateAcquireNextImage: 0
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
-  bundleVersion: 1.2
+  bundleVersion: 1.2.4
   preloadedAssets:
   - {fileID: 11400000, guid: ef8a6f50bb457264fa6cebb248811288, type: 2}
   metroInputSource: 0
@@ -156,7 +156,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.UniversityofCentralFlorida.MovementVisualization
-    Standalone: com.DefaultCompany.Video-Test
+    Standalone: com.University-of-Central-Florida.Movement-Visualization
   buildNumber:
     Standalone: 0
     VisionOS: 0

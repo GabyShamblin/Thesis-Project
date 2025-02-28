@@ -30,7 +30,7 @@ public class LineDraw : MonoBehaviour
 
   //! The previous frame activated
   private int prevFrame = 0;
-  private int skipFrames = 8;
+  private int skipFrames = 7;
   private bool offsetMode = false;
   //! The current hand position
   private Vector3 currPos;
@@ -97,8 +97,10 @@ public class LineDraw : MonoBehaviour
         if (prevFrame < icons[Globals.move].Length && icons[Globals.move][prevFrame] != null) {
           icons[Globals.move][prevFrame].SetActive(false);
         }
-        icons[Globals.move][frame].SetActive(true);
-        prevFrame = frame;
+        if (frame < icons[Globals.move].Length) {
+          icons[Globals.move][frame].SetActive(true);
+          prevFrame = frame;
+        }
       } else {
         // If continuous animation, only turn on every 5th frame to lessen confusion
         if (frame % skipFrames == 0 || frame == Globals.traces[Globals.move][lineNum].Positions.Count-1) {
@@ -148,8 +150,11 @@ public class LineDraw : MonoBehaviour
 
   //! Reset line for next gesture. Triggered by rewind.
   public void ResetLine() {
+    if (icons.Length < Globals.move) { 
+      prevFrame = 0; return;
+    }
     // Set all icons in gesture to not active
-    for (int i = 0; i < Globals.traces[Globals.move][lineNum].Positions.Count; i++) {
+    for (int i = 0; i < icons[Globals.move].Length; i++) {
       if (icons[Globals.move][i] != null) {
         // Turn off icon
         icons[Globals.move][i].SetActive(false);

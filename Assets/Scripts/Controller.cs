@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
+using TMPro;
 
 //! Controls the videos, lines, and audio
 public class Controller : MonoBehaviour
@@ -10,12 +11,14 @@ public class Controller : MonoBehaviour
   [SerializeField] private AudioClip successAudio;
   [SerializeField] private AudioClip failAudio;
   [SerializeField] private GameObject[] numbers;
+  [SerializeField] private GameObject pauseText;
 
-  //! Line logic
   private LineLogic lineLogic;
-  //! Export data
   private ExportData exportData;
+  private HandTrack[] hands;
   private bool act = false;
+  private float timer = 0f;
+  private bool showText = false;
 
 
 
@@ -28,17 +31,22 @@ public class Controller : MonoBehaviour
     }
   }
 
-  //! Start video player. Triggered by import data.
+  void Start() {
+    hands = GetComponent<HandLogic>().hands;
+  }
+
+  //! Create tracing lines. Triggered by import data.
   public void StartTracing() {
-    lineLogic = this.GetComponent<LineLogic>();
-    lineLogic.StartLines();
     Globals.start = true;
     Globals.paused = false;
-    UpdateVis();
-    
-    exportData = this.GetComponent<ExportData>();
+    lineLogic = GetComponent<LineLogic>();
+    lineLogic.StartLines();
+    exportData = GetComponent<ExportData>();
     exportData.StartData();
-    StartCoroutine(PlayMovement());
+
+    UpdateVis();
+    // StartCoroutine(PlayMovement());
+    Globals.waitAnimation = true;
   }
 
   private IEnumerator PlayMovement() {
@@ -68,11 +76,13 @@ public class Controller : MonoBehaviour
     // Animate movement
     for (int frame = 0; frame < Globals.traces[Globals.move][0].Positions.Count; frame++) {
       lineLogic.UpdateLines(frame);
-      yield return new WaitForSeconds(0.025f);
+      yield return new WaitForSeconds(0.03f);
     }
+
     // Reset back to first frame for user to follow
     lineLogic.UpdateLines(0);
-    Globals.paused = true;
+    Globals.waiting = true;
+    // Globals.paused = true;
   }
 
   void UpdateVis() {
@@ -82,7 +92,7 @@ public class Controller : MonoBehaviour
     int index = Random.Range(0, Globals.leftover.Count);
     Globals.trial = Globals.leftover[index];
     Globals.leftover.RemoveAt(index);
-    Debug.Log("Controller: Next visualization " + Globals.trial);
+    Debug.Log("Controller: Next visualization");
 
     // Trials 0-5 are not offset
     // Trials 6-11 are offset
@@ -116,25 +126,60 @@ public class Controller : MonoBehaviour
     lineLogic.UpdateVis();
 
     Globals.move = 0;
-    Globals.moveAttempt = 0;
   }
 
   void Update() {
-    if (Globals.paused) {
+    if (showText) {
+      timer += Time.deltaTime;
+      if (timer >= 5) {
+        showText = false;
+        pauseText.SetActive(false);
+        timer = 0f;
+      }
+    }
+
+    else if (Globals.waiting || Globals.waitAnimation) {
+      bool both = true;
+      for (int i = 0; i < hands.Length; i++) {
+        hands[i].real.gameObject.SetActive(true);
+        // If the hand is out of reach of the restart position, don't continue
+        if (Vector3.Distance(hands[i].real.position, hands[i].position) > Globals.distAllow) {
+          both = false;
+        }
+      }
+      if (both) {
+        if (Globals.waitAnimation) {
+          Globals.waitAnimation = false;
+          Globals.paused = false;
+          Forward();
+        }
+        else if (Globals.waiting) {
+          Globals.waiting = false;
+          Globals.paused = true;
+        }
+      }
+    }
+
+    else if (Globals.start && Globals.paused) {
+      for (int i = 0; i < hands.Length; i++) {
+        hands[i].real.gameObject.SetActive(false);
+      }
+
       if (Input.GetKeyDown("up")) {
         StartCoroutine(PlayMovement());
       }
 
       if (Input.GetKeyDown("right")) {
-        Forward();
+        WaitForward();
       }
       else if (Input.GetKeyDown("left")) {
-        StartCoroutine(Rewind());
+        Rewind();
       }
 
       // Click Y to trigger a rewind
       if (OVRInput.GetDown(OVRInput.Button.Four)) {
-        StartCoroutine(Rewind());
+        Globals.userResets++;
+        Rewind();
       }
 
       if (Input.GetKeyDown("l")) {
@@ -146,32 +191,43 @@ public class Controller : MonoBehaviour
     }
   }
 
-  //! Move video to next gesture. Triggered by moving hands to correct positions or clicking right arrow key.
-  public void Forward() {
-    Debug.Log("Forward");
+  public void WaitForward() {
+    Debug.Log("Wait Forward");
+    Globals.waitAnimation = true;
+    Globals.paused = false;
+
     audioFeedback.PlayOneShot(successAudio);
     lineLogic.ResetLines();
     exportData.SaveData();
-    Globals.paused = false;
 
-    if (Globals.leftover.Count <= 0) {
-      // exportData.WriteData();
+    if (Globals.leftover.Count <= 0 && Globals.move >= 2) {
       Debug.Log("WE ARE DONE!!!!!!!!!!!");
+      pauseText.SetActive(true);
+      pauseText.GetComponent<TMP_Text>().text = "Done";
       return;
     }
 
     if (Globals.move < 2) {
       Debug.Log("Controller: Next movement");
       Globals.move++;
+      // Forward();
     } else {
       UpdateVis();
+      showText = true;
+      pauseText.SetActive(true);
     }
+  }
 
+  //! Move video to next gesture. Triggered by moving hands to correct positions or clicking right arrow key.
+  private void Forward() {
+    Debug.Log("Forward");
+    Globals.moveAttempt = 0;
+    Globals.userResets = 0;
     StartCoroutine(PlayMovement());
   }
 
   //! Replay current gesture. Triggered by geting hand positions wrong or clicking left arrow key.
-  public IEnumerator Rewind() {
+  public void Rewind() {
     Debug.Log("Rewind");
     audioFeedback.PlayOneShot(failAudio);
     Globals.paused = false;
@@ -179,7 +235,6 @@ public class Controller : MonoBehaviour
     lineLogic.ResetLines();
     Globals.userHands[0] = new Hand();
     Globals.userHands[1] = new Hand();
-    yield return StartCoroutine(lineLogic.ReplayHands());
 
     StartCoroutine(PlayMovement());
   }

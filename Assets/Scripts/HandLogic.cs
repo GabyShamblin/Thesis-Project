@@ -36,7 +36,7 @@ public class HandLogic : MonoBehaviour
 
   void Start() 
   {
-    control = this.GetComponent<Controller>();
+    control = GetComponent<Controller>();
 
     Globals.distAllow = distanceAllowance;
     Globals.angleAllow = angleAllowance;
@@ -44,15 +44,6 @@ public class HandLogic : MonoBehaviour
     Globals.userHands = new List<Hand>();
     Globals.userHands.Add(new Hand());
     Globals.userHands.Add(new Hand());
-
-    // bool hasArms = false;
-    // for (int i = 0; i < Globals.armCheck.Length; i++) {
-    //   if (Globals.armCheck[i] == 0) {
-    //     Debug.LogWarning("Arm " + i + " is not enabled");
-    //   } else {
-    //     hasArms = true;
-    //   }
-    // }
 
     if (hands == null || hands.Length == 0) {
       Debug.LogError("Arms are not set and WILL cause problems");
@@ -84,8 +75,8 @@ public class HandLogic : MonoBehaviour
 
       // If got to the end of the gesture, continue to next gesture (or restart)
       if (cont) {
-        if (fail) { StartCoroutine(control.Rewind()); }
-        else { control.Forward(); }
+        if (fail) { control.Rewind(); }
+        else { control.WaitForward(); }
         fail = false;
       } else {
         cont = true;
